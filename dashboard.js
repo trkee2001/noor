@@ -4,6 +4,14 @@
 
 const DESKTOP_BP = 769;
 const AUTH_SESSION_KEY = 'qmza_session';
+const SUPABASE_URL = 'https://fdgbvwdfoqtlqgrdqkkm.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_vzX7qivLBBjHlvHwpK5Cbw_nBxL_lop';
+const SUPABASE_TABLE_STUDENTS = 'students';
+const SUPABASE_TABLE_NEW_REQUESTS = 'new_students_requests';
+const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) ?? null;
+
+let requestsCache = null;
+let studentsCache = null;
 
 function getAuthSession() {
     try { return JSON.parse(localStorage.getItem(AUTH_SESSION_KEY)); }
@@ -48,14 +56,20 @@ function previewStudentCode() {
     return `${year}${String(seq).padStart(2, '0')}`;
 }
 
-function getStudents() {
+function getStudentsLocal() {
     try { return JSON.parse(localStorage.getItem('dash_students') || '[]'); }
     catch { return []; }
+}
+
+function getStudents() {
+    if (studentsCache !== null) return studentsCache;
+    return getStudentsLocal();
 }
 
 function saveStudents(list) {
     localStorage.setItem('dash_students', JSON.stringify(list));
     localStorage.setItem('approved_students', JSON.stringify(list));
+    studentsCache = list;
 }
 
 const STUDENT_PASS_REGEX = /^(?=.*[a-z])(?=.*[0-9])[a-z0-9]{8,}$/;
@@ -119,13 +133,107 @@ const HALAQA_LABELS = {
     maghrib: 'حلقة المغرب'
 };
 
-function getNewStudentRequests() {
+function getNewStudentRequestsLocal() {
     try { return JSON.parse(localStorage.getItem(NEW_REQUESTS_KEY) || '[]'); }
     catch { return []; }
 }
 
+function getNewStudentRequests() {
+    if (requestsCache !== null) return requestsCache;
+    return getNewStudentRequestsLocal();
+}
+
 function saveNewStudentRequests(list) {
     localStorage.setItem(NEW_REQUESTS_KEY, JSON.stringify(list));
+    requestsCache = list;
+}
+
+function mapRequestFromDb(row) {
+    return {
+        id: row.id,
+        name: row.name || '',
+        phone: row.phone || '',
+        countryCode: row.country_code || '+967',
+        password: row.password || '',
+        submittedAt: row.submitted_at || '',
+        submittedLabel: row.submitted_label || row.submitted_at || ''
+    };
+}
+
+function mapStudentFromDb(row) {
+    return {
+        id: row.id,
+        name: row.name || '',
+        code: row.code || '',
+        phone: row.phone || '',
+        password: row.password || '',
+        halaqa: row.halaqa || '',
+        level: row.level || 'beginner',
+        avatar: row.avatar || '',
+        approvedAt: row.approved_at || '',
+        approvedLabel: row.approved_at || ''
+    };
+}
+
+function formatApprovedLabel(date = new Date()) {
+    return date.toLocaleString('ar-SA', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function normalizeRequestId(id) {
+    const numeric = Number(id);
+    return Number.isFinite(numeric) ? numeric : id;
+}
+
+async function fetchNewStudentRequestsFromDb() {
+    if (!supabaseClient) return getNewStudentRequestsLocal();
+
+    const { data, error } = await supabaseClient
+        .from(SUPABASE_TABLE_NEW_REQUESTS)
+        .select('*')
+        .order('submitted_at', { ascending: false });
+
+    if (error) {
+        console.error('Supabase requests fetch failed:', error);
+        return getNewStudentRequestsLocal();
+    }
+
+    return (data || []).map(mapRequestFromDb);
+}
+
+async function fetchStudentsFromDb() {
+    if (!supabaseClient) return getStudentsLocal();
+
+    const { data, error } = await supabaseClient
+        .from(SUPABASE_TABLE_STUDENTS)
+        .select('*')
+        .order('approved_at', { ascending: false });
+
+    if (error) {
+        console.error('Supabase students fetch failed:', error);
+        return getStudentsLocal();
+    }
+
+    const students = (data || []).map(mapStudentFromDb);
+    saveStudents(students);
+    return students;
+}
+
+async function loadDashboardData() {
+    const [requests, students] = await Promise.all([
+        fetchNewStudentRequestsFromDb(),
+        fetchStudentsFromDb()
+    ]);
+    requestsCache = requests;
+    studentsCache = students;
+    updateNewRequestsBadge();
+    renderNewRequestsTable();
+    renderApprovedStudentsTable();
 }
 
 function getTeacherAccounts() {
@@ -289,57 +397,87 @@ function renderTeachersTable() {
     });
 }
 
-function acceptNewStudentRequest(requestId) {
+async function acceptNewStudentRequest(requestId) {
+    const normalizedId = normalizeRequestId(requestId);
     const requests = getNewStudentRequests();
-    const index = requests.findIndex((r) => r.id === requestId);
+    const index = requests.findIndex((r) => String(r.id) === String(normalizedId));
     if (index === -1) return;
 
     const req = requests[index];
     const copiedPassword = extractRecordPassword(req) || DEFAULT_STUDENT_PASSWORD;
-    const students = getStudents();
     const now = new Date();
-    students.push({
-        id: createStudentRecordId(),
+    const studentPayload = {
         name: req.name,
         code: generateStudentCode(),
         phone: formatPhoneDisplay(req.countryCode, req.phone),
         password: copiedPassword,
         halaqa: '',
-        level: 'beginner',
-        approvedAt: now.toISOString(),
-        approvedLabel: now.toLocaleString('ar-SA', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        }),
-        fromRequestId: req.id
-    });
-    saveStudents(students);
+        level: 'beginner'
+    };
 
-    requests.splice(index, 1);
-    saveNewStudentRequests(requests);
+    if (supabaseClient) {
+        const { error: insertError } = await supabaseClient
+            .from(SUPABASE_TABLE_STUDENTS)
+            .insert(studentPayload);
 
+        if (insertError) {
+            console.error('Supabase student insert failed:', insertError);
+            showToast('تعذر قبول الطلب. تحقق من صلاحيات جدول الطلاب.');
+            return;
+        }
+
+        const { error: deleteError } = await supabaseClient
+            .from(SUPABASE_TABLE_NEW_REQUESTS)
+            .delete()
+            .eq('id', normalizedId);
+
+        if (deleteError) {
+            console.error('Supabase request delete failed:', deleteError);
+            showToast('تمت إضافة الطالب لكن تعذر حذف الطلب من القائمة.');
+        }
+    } else {
+        const students = getStudents();
+        students.push({
+            id: createStudentRecordId(),
+            ...studentPayload,
+            approvedAt: now.toISOString(),
+            approvedLabel: formatApprovedLabel(now),
+            fromRequestId: req.id
+        });
+        saveStudents(students);
+        saveNewStudentRequests(requests.filter((r) => String(r.id) !== String(normalizedId)));
+    }
+
+    await loadDashboardData();
     showToast(`تم قبول "${req.name}" وإضافته للطلاب المعتمدين`);
-    renderApprovedStudentsTable();
-    renderNewRequestsTable();
 }
 
-function rejectNewStudentRequest(requestId) {
+async function rejectNewStudentRequest(requestId) {
+    const normalizedId = normalizeRequestId(requestId);
     const requests = getNewStudentRequests();
-    const req = requests.find((r) => r.id === requestId);
+    const req = requests.find((r) => String(r.id) === String(normalizedId));
     if (!req) return;
 
-    saveNewStudentRequests(requests.filter((r) => r.id !== requestId));
+    if (supabaseClient) {
+        const { error } = await supabaseClient
+            .from(SUPABASE_TABLE_NEW_REQUESTS)
+            .delete()
+            .eq('id', normalizedId);
+
+        if (error) {
+            console.error('Supabase request reject failed:', error);
+            showToast('تعذر رفض الطلب. تحقق من صلاحيات الحذف.');
+            return;
+        }
+    } else {
+        saveNewStudentRequests(requests.filter((r) => String(r.id) !== String(normalizedId)));
+    }
+
+    await loadDashboardData();
     showToast(`تم رفض طلب "${req.name}"`);
-    renderNewRequestsTable();
 }
 
 function initNewStudentRequests() {
-    renderNewRequestsTable();
-    renderApprovedStudentsTable();
-
     const tbody = document.getElementById('new-requests-table-body');
     tbody?.addEventListener('click', (e) => {
         const btn = e.target.closest('[data-action]');
@@ -350,9 +488,9 @@ function initNewStudentRequests() {
         const action = btn.dataset.action;
 
         if (action === 'accept') {
-            removeRequestRow(row, () => acceptNewStudentRequest(requestId));
+            removeRequestRow(row, () => { acceptNewStudentRequest(requestId); });
         } else if (action === 'reject') {
-            removeRequestRow(row, () => rejectNewStudentRequest(requestId));
+            removeRequestRow(row, () => { rejectNewStudentRequest(requestId); });
         }
     });
 }
@@ -891,7 +1029,7 @@ function switchTab(tabId) {
     });
     if (!isDesktop()) closeMobileSidebar();
     history.replaceState(null, '', `#${tabId}`);
-    if (tabId === 'new-requests') renderNewRequestsTable();
+    if (tabId === 'new-requests') loadDashboardData();
     if (tabId === 'students') renderApprovedStudentsTable();
     if (tabId === 'ads') {
         renderAdsManagementViews();
@@ -1103,7 +1241,7 @@ function initKpiAnimation() {
 }
 
 /* ── تهيئة ── */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     if (!requireAuth()) return;
 
     if (localStorage.getItem('dash_dark') === '1') applyDarkMode(true);
@@ -1117,6 +1255,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initBannerAdsManagement();
     renderTeachersTable();
     initKpiAnimation();
+    await loadDashboardData();
 
     document.querySelectorAll('.dash-nav-link').forEach(link => {
         link.addEventListener('click', () => switchTab(link.dataset.tab));

@@ -45,6 +45,13 @@ const APPROVED_STUDENTS_LEGACY_KEY = 'approved_students';
 const APPROVED_STUDENTS_KEYS = [APPROVED_STUDENTS_KEY, APPROVED_STUDENTS_LEGACY_KEY];
 const CURRENT_STUDENT_KEY = 'current_logged_in_student';
 const DEFAULT_STUDENT_PASSWORD = '1234567a';
+const SUPABASE_URL = 'https://fdgbvwdfoqtlqgrdqkkm.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_vzX7qivLBBjHlvHwpK5Cbw_nBxL_lop';
+const SUPABASE_TABLE_STUDENTS = 'students';
+const SUPABASE_TABLE_NEW_REQUESTS = 'new_students_requests';
+const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) ?? null;
+
+window.schoolSupabase = supabaseClient;
 
 /* -----------------------------------------------------------------------
    تعقيم المدخلات — الحماية من XSS
@@ -1301,6 +1308,22 @@ function normalizeStudentCode(raw) {
     return sanitizeDigitsOnly(String(raw ?? ''), 10);
 }
 
+function mapStudentFromDb(row) {
+    if (!row) return null;
+    return {
+        id: row.id,
+        name: row.name || '',
+        code: row.code || '',
+        phone: row.phone || '',
+        password: row.password || '',
+        halaqa: row.halaqa || 'حلقة الفجر',
+        level: row.level || 'beginner',
+        avatar: row.avatar || DEFAULT_AVATAR,
+        approvedAt: row.approved_at || '',
+        approvedLabel: row.approved_at || ''
+    };
+}
+
 function getApprovedStudents() {
     const byCode = new Map();
 
@@ -1318,6 +1341,26 @@ function getApprovedStudents() {
     return Array.from(byCode.values());
 }
 
+async function findApprovedStudentInDb(code, password) {
+    const normalizedCode = normalizeStudentCode(code);
+    const normalizedPass = String(password ?? '').trim();
+    if (!supabaseClient || !normalizedCode || !normalizedPass) return null;
+
+    const { data, error } = await supabaseClient
+        .from(SUPABASE_TABLE_STUDENTS)
+        .select('*')
+        .eq('code', normalizedCode)
+        .eq('password', normalizedPass)
+        .maybeSingle();
+
+    if (error) {
+        console.error('Supabase student lookup failed:', error);
+        return null;
+    }
+
+    return mapStudentFromDb(data);
+}
+
 function extractStudentPassword(student) {
     const raw = student?.password ?? student?.pass ?? student?.studentPassword ?? '';
     return String(raw).trim();
@@ -1330,7 +1373,7 @@ function studentPasswordMatches(student, inputPass) {
     return input === DEFAULT_STUDENT_PASSWORD;
 }
 
-function findApprovedStudent(code, password) {
+function findApprovedStudentLocal(code, password) {
     const normalizedCode = normalizeStudentCode(code);
     const normalizedPass = String(password ?? '').trim();
     if (!normalizedCode || !normalizedPass) return null;
@@ -1342,6 +1385,12 @@ function findApprovedStudent(code, password) {
         normalizeStudentCode(st.code) === normalizedCode &&
         studentPasswordMatches(st, normalizedPass)
     )) || null;
+}
+
+async function findApprovedStudent(code, password) {
+    const fromDb = await findApprovedStudentInDb(code, password);
+    if (fromDb) return fromDb;
+    return findApprovedStudentLocal(code, password);
 }
 
 function saveCurrentLoggedInStudent(student, code) {
@@ -1395,13 +1444,13 @@ function rejectStudentLogin() {
     showToast('بيانات الدخول غير صحيحة أو لم يُقبل طلبك بعد.', 'error');
 }
 
-function attemptStudentLogin(rawCode, rawPass) {
+async function attemptStudentLogin(rawCode, rawPass) {
     if (!validateLoginForm()) {
         rejectStudentLogin();
         return false;
     }
 
-    const student = findApprovedStudent(rawCode, rawPass);
+    const student = await findApprovedStudent(rawCode, rawPass);
     if (!student) {
         rejectStudentLogin();
         return false;
@@ -1448,28 +1497,59 @@ function validateRegisterForm() {
     return ok;
 }
 
-function saveNewStudentRequest(data) {
+function buildSubmittedLabel(date = new Date()) {
+    return date.toLocaleString('ar-SA', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function saveNewStudentRequestLocal(data, submittedAt, submittedLabel) {
     try {
         const list = JSON.parse(localStorage.getItem('new_students_requests') || '[]');
-        const now = new Date();
         list.push({
             id: `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
             name: data.name,
             phone: data.phone,
             countryCode: data.countryCode,
             password: data.password ?? '',
-            submittedAt: now.toISOString(),
-            submittedLabel: now.toLocaleString('ar-SA', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            })
+            submittedAt: submittedAt.toISOString(),
+            submittedLabel
         });
         localStorage.setItem('new_students_requests', JSON.stringify(list));
-    } catch { /* ignore storage errors */ }
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+async function saveNewStudentRequest(data) {
+    const now = new Date();
+    const submittedLabel = buildSubmittedLabel(now);
+
+    if (supabaseClient) {
+        const { error } = await supabaseClient
+            .from(SUPABASE_TABLE_NEW_REQUESTS)
+            .insert({
+                name: data.name,
+                phone: data.phone,
+                country_code: data.countryCode,
+                password: data.password ?? '',
+                submitted_label: submittedLabel
+            });
+
+        if (!error) return { ok: true, source: 'supabase' };
+        console.error('Supabase request insert failed:', error);
+    }
+
+    const savedLocally = saveNewStudentRequestLocal(data, now, submittedLabel);
+    return savedLocally
+        ? { ok: true, source: 'local' }
+        : { ok: false, source: 'none' };
 }
 
 /* -----------------------------------------------------------------------
@@ -2173,20 +2253,26 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('go-login-tab')?.addEventListener('click', () => showView('login-view'));
 
     // نموذج تسجيل الدخول — مصادقة صارمة ضد الطلاب المعتمدين (dash_students)
-    document.getElementById('login-form')?.addEventListener('submit', (e) => {
+    document.getElementById('login-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         e.stopPropagation();
 
         const code = document.getElementById('login-id')?.value ?? '';
         const pass = document.getElementById('login-pass')?.value ?? '';
-        attemptStudentLogin(code, pass);
+        const submitBtn = document.getElementById('login-submit-btn');
+        submitBtn?.setAttribute('disabled', 'disabled');
+        try {
+            await attemptStudentLogin(code, pass);
+        } finally {
+            submitBtn?.removeAttribute('disabled');
+        }
     });
 
     document.getElementById('login-id')?.addEventListener('input', clearLoginFailureState);
     document.getElementById('login-pass')?.addEventListener('input', clearLoginFailureState);
 
     // نموذج طلب الانضمام
-    document.getElementById('register-form')?.addEventListener('submit', (e) => {
+    document.getElementById('register-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!validateRegisterForm()) {
             const intl = isPhoneIntlMode();
@@ -2205,18 +2291,31 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast(msg, 'error');
             return;
         }
-        saveNewStudentRequest({
-            name: sanitize(document.getElementById('reg-name')?.value ?? ''),
-            phone: sanitize(document.getElementById('reg-phone')?.value.trim() ?? ''),
-            countryCode: isPhoneIntlMode() ? getCountryCodeValue() : '+967',
-            password: document.getElementById('reg-pass')?.value ?? ''
-        });
-        setMascotSpeech('joinSuccess');
-        updateMascotPose();
-        document.getElementById('register-form')?.reset();
-        resetPhoneIntlMode();
-        resetPasswordField('reg-pass');
-        showToast('تم إرسال طلبك بنجاح!', 'success');
+
+        const submitBtn = document.getElementById('register-submit-btn');
+        submitBtn?.setAttribute('disabled', 'disabled');
+        try {
+            const result = await saveNewStudentRequest({
+                name: sanitize(document.getElementById('reg-name')?.value ?? ''),
+                phone: sanitize(document.getElementById('reg-phone')?.value.trim() ?? ''),
+                countryCode: isPhoneIntlMode() ? getCountryCodeValue() : '+967',
+                password: document.getElementById('reg-pass')?.value ?? ''
+            });
+
+            if (!result.ok) {
+                showToast('تعذر إرسال الطلب. حاول مرة أخرى.', 'error');
+                return;
+            }
+
+            setMascotSpeech('joinSuccess');
+            updateMascotPose();
+            document.getElementById('register-form')?.reset();
+            resetPhoneIntlMode();
+            resetPasswordField('reg-pass');
+            showToast('تم إرسال طلبك بنجاح!', 'success');
+        } finally {
+            submitBtn?.removeAttribute('disabled');
+        }
     });
 
     // بطاقات الويدجت
