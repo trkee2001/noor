@@ -1,0 +1,178 @@
+/* =====================================================================
+   بوابة دخول لوحة التحكم — معزولة تحت #dashboard-login-page فقط
+   ===================================================================== */
+
+#dashboard-login-page {
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    background: #f4faf8;
+    font-family: var(--font);
+}
+
+#dashboard-login-page .dash-login-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(167, 235, 216, 0.35) 0%, transparent 45%),
+        radial-gradient(circle at 80% 80%, rgba(0, 77, 90, 0.08) 0%, transparent 40%),
+        linear-gradient(160deg, #f8fcfb 0%, #eef7f4 50%, #e5f3ef 100%);
+}
+
+#dashboard-login-page .dash-login-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+#dashboard-login-page .dash-login-main {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: max(20px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+    gap: 18px;
+}
+
+#dashboard-login-page .auth-card-wrap {
+    width: 100%;
+    max-width: 500px;
+}
+
+#dashboard-login-page .auth-card {
+    box-shadow:
+        0 28px 72px rgba(0, 77, 90, 0.16),
+        0 0 0 1px rgba(167, 235, 216, 0.45);
+}
+
+#dashboard-login-page .auth-security-warning {
+    margin: 0 0 16px;
+    padding: 13px 15px;
+    border-radius: 14px;
+    border: 1px solid rgba(212, 106, 106, 0.42);
+    background: linear-gradient(135deg, rgba(255, 248, 248, 0.95) 0%, rgba(255, 240, 240, 0.88) 100%);
+    font-family: var(--font);
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.7;
+    color: #c62828;
+    text-align: right;
+}
+
+#dashboard-login-page .auth-tabs--single {
+    display: grid;
+    grid-template-columns: 1fr;
+    border: 1px solid #a7ebd8;
+    border-radius: 999px;
+    padding: 3px;
+    margin-bottom: 18px;
+    background: #ffffff;
+    direction: ltr;
+}
+
+#dashboard-login-page .auth-tab-static {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #004d5a;
+    background: #a7ebd8;
+    text-align: center;
+    cursor: default;
+    pointer-events: none;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+#dashboard-login-page .auth-card.is-login-failed #dash-login-id,
+#dashboard-login-page .auth-card.is-login-failed #dash-login-pass {
+    border-color: #d46a6a !important;
+    background: #fff8f8 !important;
+}
+
+@keyframes dashAuthCardShake {
+    0%, 100% { transform: translateX(0); }
+    8% { transform: translateX(-14px) rotate(-0.6deg); }
+    16% { transform: translateX(14px) rotate(0.6deg); }
+    24% { transform: translateX(-12px); }
+    32% { transform: translateX(12px); }
+    40% { transform: translateX(-9px); }
+    48% { transform: translateX(9px); }
+    56% { transform: translateX(-6px); }
+    64% { transform: translateX(6px); }
+    72% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+}
+
+#dashboard-login-page .auth-card.is-shaking-strong {
+    animation: dashAuthCardShake 0.62s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+#dashboard-login-page .dash-login-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #004d5a;
+    font-size: 0.88rem;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(167, 235, 216, 0.65);
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+#dashboard-login-page .dash-login-back:hover {
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 77, 90, 0.08);
+}
+
+#dashboard-login-page.dark,
+body#dashboard-login-page.dark {
+    background: #0a0a1a;
+}
+
+#dashboard-login-page.dark .dash-login-bg,
+body#dashboard-login-page.dark .dash-login-bg {
+    background:
+        radial-gradient(circle at 20% 20%, rgba(167, 235, 216, 0.12) 0%, transparent 45%),
+        linear-gradient(160deg, #0a0a1a 0%, #121228 100%);
+}
+
+#dashboard-login-page.dark .dash-login-overlay,
+body#dashboard-login-page.dark .dash-login-overlay {
+    background: rgba(8, 10, 22, 0.82);
+}
+
+#dashboard-login-page.dark .auth-security-warning,
+body#dashboard-login-page.dark .auth-security-warning {
+    color: #ff6b6b;
+    background: linear-gradient(135deg, rgba(80, 20, 20, 0.55) 0%, rgba(50, 12, 12, 0.45) 100%);
+    border-color: rgba(255, 107, 107, 0.38);
+}
+
+#dashboard-login-page.dark .auth-card,
+body#dashboard-login-page.dark .auth-card {
+    background: #121228;
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow:
+        0 28px 72px rgba(0, 0, 0, 0.45),
+        0 0 0 1px rgba(167, 235, 216, 0.22);
+}
+
+#dashboard-login-page.dark .dash-login-back,
+body#dashboard-login-page.dark .dash-login-back {
+    background: rgba(18, 18, 40, 0.85);
+    border-color: rgba(167, 235, 216, 0.25);
+    color: #a7ebd8;
+}

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="لوحة المدرس — إدارة الحلقات والتسميع وتقارير الطلاب">
+    <title>لوحة المدرس | حلقات مجمع الزبير</title>
+    <link rel="stylesheet" href="teacher-dashboard.css">
+    <link rel="stylesheet" href="scrollbar.css">
+</head>
+<body>
+
+<header class="teacher-header">
+    <div class="teacher-brand">
+        <span class="teacher-brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 19V7l8-4 8 4v12"/><path d="M4 19h16"/><path d="M8 11h8"/></svg>
+        </span>
+        <div>
+            <strong>لوحة المدرس</strong>
+            <small id="teacher-header-name">حلقات مجمع الزبير</small>
+        </div>
+    </div>
+    <div class="teacher-header-actions">
+        <a class="teacher-btn teacher-btn-ghost" href="index.html">الموقع الرئيسي</a>
+        <button type="button" class="teacher-btn teacher-btn-ghost" id="teacher-logout-btn">تسجيل الخروج</button>
+    </div>
+</header>
+
+<div class="teacher-shell">
+    <aside class="teacher-sidebar" aria-label="قائمة المدرس">
+        <nav class="teacher-nav">
+            <button type="button" class="teacher-nav-link active" data-panel="overview">الرئيسية</button>
+            <button type="button" class="teacher-nav-link" data-panel="students">الطلاب والتسميع</button>
+            <button type="button" class="teacher-nav-link" data-panel="reports">التقارير</button>
+        </nav>
+        <div class="teacher-halaqa-list">
+            <strong>حلقاتك</strong>
+            <div id="teacher-halaqat-list">—</div>
+        </div>
+    </aside>
+
+    <main class="teacher-main">
+        <section class="teacher-panel active" id="panel-overview" data-panel="overview">
+            <div class="teacher-page-head">
+                <p>مرحباً بك</p>
+                <h1 id="teacher-welcome">مدرس الحلقة</h1>
+                <span>تابع طلابك وسجّل التسميع وجدول الغد من مكان واحد.</span>
+            </div>
+
+            <div class="teacher-kpi-grid">
+                <article class="teacher-kpi">
+                    <span>طلابك</span>
+                    <strong id="teacher-kpi-students">0</strong>
+                </article>
+                <article class="teacher-kpi">
+                    <span>الحلقات</span>
+                    <strong id="teacher-kpi-halaqat">0</strong>
+                </article>
+                <article class="teacher-kpi">
+                    <span>تسميع اليوم</span>
+                    <strong id="teacher-kpi-today">0</strong>
+                </article>
+                <article class="teacher-kpi">
+                    <span>يحتاجون متابعة</span>
+                    <strong id="teacher-kpi-follow">0</strong>
+                </article>
+            </div>
+        </section>
+
+        <section class="teacher-panel" id="panel-students" data-panel="students">
+            <div class="teacher-page-head">
+                <h1>إدارة الطلاب والتسميع</h1>
+                <p>اختر الطالب وسجل ما سمّعه اليوم، ثم حدّد واجب الغد.</p>
+            </div>
+
+            <div class="teacher-card">
+                <div class="teacher-card-head">
+                    <h2>تسجيل التسميع</h2>
+                    <select class="teacher-input" id="teacher-halaqa-filter" aria-label="فلترة الحلقة"></select>
+                </div>
+                <form id="teacher-recitation-form">
+                    <div class="teacher-form-grid">
+                        <label>
+                            الطالب
+                            <select class="teacher-input" id="teacher-student-select" required></select>
+                        </label>
+                        <label>
+                            السورة التي سمّعها اليوم
+                            <select class="teacher-input" id="teacher-recited-surah-select" required></select>
+                        </label>
+                        <div class="teacher-surah-range">
+                            <label>
+                                من آية
+                                <input class="teacher-input" type="number" id="teacher-recited-from-input" min="1" value="1" required>
+                            </label>
+                            <label>
+                                إلى آية
+                                <input class="teacher-input" type="number" id="teacher-recited-to-input" min="1" value="1" required>
+                            </label>
+                            <button type="button" class="teacher-btn teacher-btn-soft" id="teacher-recited-full-btn">السورة كاملة</button>
+                        </div>
+                        <label>
+                            تقييم التسميع
+                            <select class="teacher-input" id="teacher-grade-select">
+                                <option value="excellent">ممتاز</option>
+                                <option value="very-good">جيد جداً</option>
+                                <option value="needs-review">يحتاج مراجعة</option>
+                            </select>
+                        </label>
+                        <label>
+                            سورة واجب الغد
+                            <select class="teacher-input" id="teacher-tomorrow-surah-select" required></select>
+                        </label>
+                        <div class="teacher-surah-range">
+                            <label>
+                                من آية
+                                <input class="teacher-input" type="number" id="teacher-tomorrow-from-input" min="1" value="1" required>
+                            </label>
+                            <label>
+                                إلى آية
+                                <input class="teacher-input" type="number" id="teacher-tomorrow-to-input" min="1" value="1" required>
+                            </label>
+                            <button type="button" class="teacher-btn teacher-btn-soft" id="teacher-tomorrow-full-btn">السورة كاملة</button>
+                        </div>
+                        <label class="teacher-span-2">
+                            ملاحظات المدرس
+                            <textarea class="teacher-input" id="teacher-note-input" rows="3" placeholder="ملاحظة مختصرة لولي الأمر أو الطالب"></textarea>
+                        </label>
+                    </div>
+                    <button type="submit" class="teacher-btn teacher-btn-primary">حفظ التسميع</button>
+                </form>
+            </div>
+
+            <div class="teacher-card teacher-section-gap">
+                <div class="teacher-card-head">
+                    <h2>طلاب الحلقات</h2>
+                    <span id="teacher-student-count">0 طالب</span>
+                </div>
+                <div class="teacher-table-wrap">
+                    <table class="teacher-table">
+                        <thead>
+                            <tr>
+                                <th>الطالب</th>
+                                <th>الكود</th>
+                                <th>الحلقة</th>
+                                <th>آخر تسميع</th>
+                                <th>الغد</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-students-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="teacher-panel" id="panel-reports" data-panel="reports">
+            <div class="teacher-page-head">
+                <h1>التقارير</h1>
+                <p>سجل آخر عمليات التسميع التي أضفتها لطلابك.</p>
+            </div>
+            <div class="teacher-card">
+                <div class="teacher-table-wrap">
+                    <table class="teacher-table">
+                        <thead>
+                            <tr>
+                                <th>التاريخ</th>
+                                <th>الطالب</th>
+                                <th>التسميع</th>
+                                <th>التقييم</th>
+                                <th>ملاحظة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacher-records-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<div class="teacher-toast" id="teacher-toast" role="status" aria-live="polite"></div>
+
+<script src="teacher-dashboard.js"></script>
+</body>
+</html>

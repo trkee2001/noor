@@ -1,0 +1,136 @@
+/* =====================================================================
+   شريط تمرير عائم — مقبض نعناعي مضيء بدون مجرى مرئي
+   Chrome · Edge · Safari (-webkit-) · Firefox (scrollbar-*)
+   ===================================================================== */
+
+:root {
+    --scrollbar-gutter: 16px;
+    --scrollbar-inset: 4px;
+    --scrollbar-mint-neon: #45f0c8;
+    --scrollbar-mint-core: #2bbd9b;
+    --scrollbar-mint-deep: #14866c;
+    --scrollbar-thumb-hover: #1a9a7d;
+    --scrollbar-glow-soft: rgba(43, 189, 155, 0.55);
+    --scrollbar-glow-strong: rgba(61, 255, 200, 0.9);
+}
+
+/* ── Firefox — مجرى شفاف بالكامل ── */
+html,
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-mint-core) transparent;
+}
+
+/* ── WebKit — شريط عائم بدون خلفية ── */
+*::-webkit-scrollbar {
+    width: var(--scrollbar-gutter);
+    height: var(--scrollbar-gutter);
+    background: transparent;
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-track-piece {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+}
+
+*::-webkit-scrollbar-button,
+*::-webkit-scrollbar-button:single-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+*::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* ── المقبض — زحزحة داخلية + توهج نeon ── */
+*::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+        180deg,
+        var(--scrollbar-mint-neon) 0%,
+        var(--scrollbar-mint-core) 48%,
+        var(--scrollbar-mint-deep) 100%
+    );
+    border: var(--scrollbar-inset) solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+    box-shadow:
+        0 0 4px var(--scrollbar-glow-strong),
+        0 0 12px var(--scrollbar-mint-core),
+        0 0 22px var(--scrollbar-glow-soft),
+        0 0 36px rgba(43, 189, 155, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    transition: background 0.22s ease, box-shadow 0.22s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+        180deg,
+        #5cffd4 0%,
+        var(--scrollbar-thumb-hover) 50%,
+        var(--scrollbar-mint-deep) 100%
+    );
+    background-clip: padding-box;
+    box-shadow:
+        0 0 6px #ffffff,
+        0 0 14px var(--scrollbar-mint-neon),
+        0 0 26px var(--scrollbar-mint-core),
+        0 0 42px rgba(43, 189, 155, 0.75),
+        inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+*::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(
+        180deg,
+        var(--scrollbar-mint-core) 0%,
+        var(--scrollbar-mint-deep) 100%
+    );
+    background-clip: padding-box;
+    box-shadow:
+        0 0 8px var(--scrollbar-mint-neon),
+        0 0 18px var(--scrollbar-mint-core),
+        0 0 30px rgba(43, 189, 155, 0.85);
+}
+
+/* ── الوضع الداكن ── */
+body.dark,
+body.dash-dark,
+body.std-dark {
+    --scrollbar-mint-neon: #3dffc8;
+    --scrollbar-mint-core: #2bbd9b;
+    --scrollbar-thumb-hover: #0f6b56;
+    --scrollbar-glow-soft: rgba(43, 189, 155, 0.65);
+    --scrollbar-glow-strong: rgba(61, 255, 200, 0.95);
+}
+
+body.dark,
+body.dash-dark,
+body.std-dark,
+body.dark *,
+body.dash-dark *,
+body.std-dark * {
+    scrollbar-color: var(--scrollbar-mint-core) transparent;
+}
+
+body.dark *::-webkit-scrollbar-thumb:hover,
+body.dash-dark *::-webkit-scrollbar-thumb:hover,
+body.std-dark *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+        180deg,
+        #5cffd4 0%,
+        var(--scrollbar-thumb-hover) 55%,
+        #0a5242 100%
+    );
+    background-clip: padding-box;
+    box-shadow:
+        0 0 8px #ffffff,
+        0 0 16px var(--scrollbar-mint-neon),
+        0 0 28px var(--scrollbar-mint-core),
+        0 0 48px rgba(43, 189, 155, 0.8),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}

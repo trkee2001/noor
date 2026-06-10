@@ -1,0 +1,344 @@
+@font-face {
+    font-family: 'Thmanyah Sans';
+    src: url('Text/thmanyahsans-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Thmanyah Sans';
+    src: url('Text/thmanyahsans-Bold.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Thmanyah Sans';
+    src: url('Text/thmanyahsans-Black.otf') format('opentype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --emerald: #004d5a;
+    --mint: #a7ebd8;
+    --bg: #ffffff;
+    --soft: #f6fbf9;
+    --border: #e4ecef;
+    --muted: #7a9299;
+    --shadow: 0 10px 30px rgba(0, 77, 90, 0.08);
+    --sidebar: 240px;
+    --font: 'Thmanyah Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    min-height: 100vh;
+    font-family: var(--font);
+    direction: rtl;
+    background: var(--bg);
+    color: var(--emerald);
+}
+
+button, input, select, textarea { font-family: var(--font); }
+
+.teacher-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 22px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+}
+
+.teacher-brand,
+.teacher-header-actions,
+.teacher-card-head,
+.teacher-nav-link {
+    display: flex;
+    align-items: center;
+}
+
+.teacher-brand { gap: 10px; }
+
+.teacher-brand-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    background: var(--mint);
+}
+
+.teacher-brand-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: var(--emerald);
+    stroke-width: 2;
+}
+
+.teacher-brand strong { display: block; font-weight: 900; }
+.teacher-brand small { color: var(--muted); font-size: 0.78rem; }
+.teacher-header-actions { gap: 10px; }
+
+.teacher-shell {
+    display: flex;
+    min-height: calc(100vh - 64px);
+}
+
+.teacher-sidebar {
+    position: sticky;
+    top: 64px;
+    width: var(--sidebar);
+    height: calc(100vh - 64px);
+    padding: 18px 14px;
+    border-left: 1px solid var(--border);
+    background: #ffffff;
+}
+
+.teacher-nav {
+    display: grid;
+    gap: 8px;
+}
+
+.teacher-nav-link {
+    width: 100%;
+    height: 44px;
+    justify-content: flex-start;
+    padding: 0 14px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    background: transparent;
+    color: var(--emerald);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.teacher-nav-link.active,
+.teacher-nav-link:hover {
+    background: rgba(167, 235, 216, 0.32);
+    border-color: rgba(167, 235, 216, 0.7);
+}
+
+.teacher-halaqa-list {
+    margin-top: 24px;
+    padding: 14px;
+    border-radius: 16px;
+    background: var(--soft);
+    color: var(--emerald);
+}
+
+.teacher-halaqa-list strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.teacher-main {
+    flex: 1;
+    padding: 28px;
+    background:
+        radial-gradient(circle at 80% 0%, rgba(167, 235, 216, 0.28), transparent 34%),
+        #ffffff;
+}
+
+.teacher-panel { display: none; }
+.teacher-panel.active { display: block; }
+
+.teacher-page-head {
+    margin-bottom: 20px;
+}
+
+.teacher-page-head p,
+.teacher-page-head span {
+    color: var(--muted);
+}
+
+.teacher-page-head h1 {
+    font-size: 1.9rem;
+    font-weight: 900;
+}
+
+.teacher-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.teacher-kpi,
+.teacher-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+}
+
+.teacher-kpi {
+    padding: 20px;
+}
+
+.teacher-kpi span {
+    display: block;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.teacher-kpi strong {
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+.teacher-card {
+    padding: 20px;
+}
+
+.teacher-card-head {
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.teacher-card-head h2 {
+    font-size: 1.1rem;
+    font-weight: 900;
+}
+
+.teacher-section-gap { margin-top: 18px; }
+
+.teacher-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.teacher-span-2 { grid-column: 1 / -1; }
+
+.teacher-surah-range {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+}
+
+.teacher-surah-range label {
+    display: grid;
+    gap: 6px;
+    font-weight: 700;
+}
+
+.teacher-form-grid label {
+    display: grid;
+    gap: 6px;
+    font-weight: 700;
+}
+
+.teacher-input {
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--emerald);
+    background: #ffffff;
+    outline: none;
+}
+
+.teacher-input:focus {
+    border-color: var(--mint);
+    box-shadow: 0 0 0 3px rgba(167, 235, 216, 0.35);
+}
+
+.teacher-btn {
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--emerald);
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.teacher-btn-primary {
+    background: var(--mint);
+    border-color: var(--mint);
+}
+
+.teacher-btn-soft {
+    height: 42px;
+    border-color: rgba(167, 235, 216, 0.7);
+    background: rgba(167, 235, 216, 0.25);
+}
+
+.teacher-btn-ghost:hover,
+.teacher-btn-primary:hover {
+    filter: brightness(0.98);
+}
+
+.teacher-table-wrap {
+    overflow-x: auto;
+}
+
+.teacher-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+}
+
+.teacher-table th,
+.teacher-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+}
+
+.teacher-table th {
+    background: var(--soft);
+    font-size: 0.82rem;
+}
+
+.teacher-empty {
+    text-align: center;
+    color: var(--muted);
+}
+
+.teacher-toast {
+    position: fixed;
+    bottom: 22px;
+    left: 22px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: var(--emerald);
+    color: #ffffff;
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+    transition: 0.25s ease;
+    z-index: 50;
+}
+
+.teacher-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 900px) {
+    .teacher-shell { flex-direction: column; }
+    .teacher-sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+    }
+    .teacher-nav { grid-template-columns: repeat(3, 1fr); }
+    .teacher-kpi-grid,
+    .teacher-form-grid { grid-template-columns: 1fr; }
+    .teacher-surah-range { grid-template-columns: 1fr; }
+    .teacher-main { padding: 18px; }
+}
