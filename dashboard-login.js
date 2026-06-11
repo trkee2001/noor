@@ -225,6 +225,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         redirectIfAlreadyAuthed();
+        initUiZoomControls();
 
         if (localStorage.getItem('qmza_dark') === '1') {
             document.getElementById('dashboard-login-page')?.classList.add('dark');

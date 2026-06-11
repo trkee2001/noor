@@ -503,6 +503,7 @@ function renderDashboard() {
 
 document.addEventListener('DOMContentLoaded', () => {
     if (!requireStudentAuth()) return;
+    initUiZoomControls();
     initStudentHeader();
     initProfileActions();
     renderDashboard();

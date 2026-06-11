@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>لوحة ولي الأمر | حلقات مجمع الزبير</title>
+    <link rel="stylesheet" href="parent-dashboard.css">
+    <link rel="stylesheet" href="scrollbar.css">
+    <script src="ui-zoom.js"></script>
+</head>
+<body id="parent-dashboard-page">
+<header class="par-header">
+    <div class="par-header-inner">
+        <a href="index.html" class="par-brand">
+            <span class="par-brand-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M4 19V7l8-4 8 4v12"/><path d="M4 19h16"/></svg>
+            </span>
+            <span>
+                <strong>حلقات مجمع الزبير</strong>
+                <small>لوحة ولي الأمر / الضيف</small>
+            </span>
+        </a>
+        <button type="button" class="par-btn par-btn-outline" id="par-logout-btn">تسجيل الخروج</button>
+    </div>
+</header>
+
+<main class="par-main">
+    <section class="par-welcome">
+        <h1 id="par-welcome-name">مرحباً</h1>
+        <p id="par-welcome-sub">تابع تقدّم ابنك — بدون كود أكاديمي</p>
+    </section>
+
+    <section class="par-card">
+        <h2>الابن المرتبط</h2>
+        <dl class="par-info-grid">
+            <div><dt>اسم الابن</dt><dd id="par-child-name">—</dd></div>
+            <div><dt>بريدك الإلكتروني</dt><dd id="par-email" dir="ltr">—</dd></div>
+        </dl>
+    </section>
+
+    <section class="par-card">
+        <h2>ملاحظة</h2>
+        <p class="par-note">هذه لوحة متابعة مبدئية لولي الأمر والضيف. سيتم إضافة تقارير التقدّم والإشعارات لاحقاً.</p>
+    </section>
+</main>
+
+<script src="parent-dashboard.js?v=20260612g"></script>
+</body>
+</html>

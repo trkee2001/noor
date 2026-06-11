@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="البوابة الرسمية لحلقات تحفيظ القرآن الكريم بمجمع الزبير ابن العوام — تسجيل الطلاب، متابعة الحفظ، ومواقيت الصلاة.">
+    <meta name="description" content="البوابة الرسمية لحلقات تحفيظ القرآن الكريم بمجمع الزبير ابن العوام — تسجيل الطلاب ومتابعة الحفظ.">
     <title>حلقات مجمع الزبير ابن العوام</title>
     <!-- خط ثمانية سانز المحلي — مربوط عبر @font-face في style.css -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="scrollbar.css">
+    <link rel="preload" as="image" href="watermarked_img_14204941598938561939.png">
 </head>
 <body>
 
@@ -15,12 +16,10 @@
      شريط الإعلان العلوي (Top Bar)
 ==================================================== -->
 <div class="top-bar" id="top-bar" role="banner">
-    <div class="top-bar-text">
-        <span class="top-bar-badge">جديد</span>
-        <span>سجّل الآن في الحلقات الصيفية لمجمع الزبير</span>
+    <div class="top-bar-marquee-viewport" aria-live="polite">
+        <div class="top-bar-marquee-track" id="top-bar-marquee-track"></div>
     </div>
-    <button class="top-bar-cta" id="top-bar-cta-btn" type="button">سجّل مجاناً</button>
-    <button class="top-bar-close" id="top-bar-close-btn" type="button" aria-label="إغلاق الإعلان">✕</button>
+    <button class="top-bar-close" id="top-bar-close-btn" type="button" aria-label="إغلاق شريط الإعلانات">✕</button>
 </div>
 
 <!-- ====================================================
@@ -102,18 +101,27 @@
 <!-- ====================================================
      سلايدر الإعلانات البانورامي
 ==================================================== -->
-<section class="hero-banner-wrap" id="hero-banner-wrap" aria-label="إعلانات المجمع" hidden>
-    <div class="hero-slider" id="hero-slider">
-        <div class="hero-slider-viewport">
-            <div class="hero-slider-track" id="hero-slider-track"></div>
+<section class="hero-banner-wrap is-loading" id="hero-banner-wrap" aria-label="إعلانات المجمع" aria-busy="true">
+    <div class="hero-banner-stage">
+        <div class="hero-banner-skeleton" id="hero-banner-skeleton" aria-hidden="false">
+            <div class="hero-skeleton-shimmer" aria-hidden="true"></div>
+            <div class="hero-skeleton-loader" role="status" aria-live="polite">
+                <span class="hero-skeleton-spinner" aria-hidden="true"></span>
+                <span class="hero-skeleton-label">جاري تحميل الإعلان...</span>
+            </div>
         </div>
-        <button type="button" class="hero-nav hero-nav-prev" id="hero-nav-prev" aria-label="الإعلان السابق">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-        <button type="button" class="hero-nav hero-nav-next" id="hero-nav-next" aria-label="الإعلان التالي">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <div class="hero-dots" id="hero-dots" role="tablist" aria-label="نقاط التمرير"></div>
+        <div class="hero-slider" id="hero-slider">
+            <div class="hero-slider-viewport">
+                <div class="hero-slider-track" id="hero-slider-track"></div>
+            </div>
+            <button type="button" class="hero-nav hero-nav-prev" id="hero-nav-prev" aria-label="الإعلان السابق">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+            <button type="button" class="hero-nav hero-nav-next" id="hero-nav-next" aria-label="الإعلان التالي">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div class="hero-dots" id="hero-dots" role="tablist" aria-label="نقاط التمرير"></div>
+        </div>
     </div>
 </section>
 
@@ -185,14 +193,36 @@
                     </div>
                 </div>
 
-                <div class="auth-tabs" role="tablist" aria-label="التنقل بين الدخول وطلب الانضمام">
-                    <button type="button" class="auth-tab auth-tab-outline" id="go-join-btn">تقديم طلب انضمام</button>
-                    <button type="button" class="auth-tab auth-tab-active" id="go-login-tab">تسجيل الدخول</button>
-                </div>
-
                 <!-- الواجهة الأولى: تسجيل الدخول -->
                 <div class="form-view" id="login-view">
                     <form id="login-form" class="login-container" novalidate>
+                        <div class="login-role-picker" role="radiogroup" aria-label="نوع تسجيل الدخول">
+                            <button type="button" class="login-role-option is-active" data-login-mode="student" id="login-mode-student" role="radio" aria-checked="true">
+                                <span class="login-role-icon-wrap">
+                                    <svg class="login-role-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zm0 8.99L5.46 10.5 12 14.5l6.54-4-6.54-2.51zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+                                    </svg>
+                                    <span class="login-role-check" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24"><path d="M9.55 16.45 5.1 12l1.41-1.41 3.04 3.04 8.94-8.94L19.9 6.1l-10.35 10.35Z"/></svg>
+                                    </span>
+                                </span>
+                                <span class="login-role-label">طالب</span>
+                            </button>
+                            <button type="button" class="login-role-option" data-login-mode="guest" id="login-mode-guest" role="radio" aria-checked="false">
+                                <span class="login-role-icon-wrap">
+                                    <svg class="login-role-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                                    </svg>
+                                    <span class="login-role-check" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24"><path d="M9.55 16.45 5.1 12l1.41-1.41 3.04 3.04 8.94-8.94L19.9 6.1l-10.35 10.35Z"/></svg>
+                                    </span>
+                                </span>
+                                <span class="login-role-label">ضيف <span class="login-role-sep">|</span> ولي أمر</span>
+                            </button>
+                        </div>
+                        <p class="login-mode-hint" id="login-mode-hint">استخدم الكود الأكاديمي وكلمة السر — للطلاب فقط.</p>
+
+                        <div id="login-student-fields">
                         <div class="field">
                             <label class="field-label" for="login-id">كود الطالب الأكاديمي</label>
                             <div class="input-wrap" id="login-id-wrap">
@@ -220,8 +250,33 @@
                             </div>
                             <div class="field-error" id="err-login-pass">كلمة السر: 8 خانات، أحرف صغيرة إنجليزية وأرقام فقط.</div>
                         </div>
+                        </div>
+
+                        <div id="login-guest-fields" hidden>
+                            <div class="field">
+                                <label class="field-label" for="guest-login-email" id="guest-login-email-label">البريد الإلكتروني</label>
+                                <div class="input-wrap" id="guest-login-email-wrap">
+                                    <input class="form-input" type="email" id="guest-login-email"
+                                        placeholder="example@mail.com" autocomplete="email" dir="ltr" lang="en" inputmode="email">
+                                </div>
+                                <div class="field-error" id="err-guest-login-email">أدخل بريداً إلكترونياً صحيحاً.</div>
+                            </div>
+                            <div class="field">
+                                <label class="field-label" for="guest-login-pass">كلمة السر</label>
+                                <div class="input-wrap" id="guest-login-pass-wrap">
+                                    <input class="form-input pass-input" type="password" id="guest-login-pass"
+                                        autocomplete="current-password" aria-label="كلمة السر">
+                                </div>
+                                <div class="field-error" id="err-guest-login-pass">كلمة السر غير صحيحة.</div>
+                            </div>
+                        </div>
 
                         <div class="login-submit-stack" id="login-submit-stack">
+                            <p class="login-alt-join" aria-label="روابط الانضمام">
+                                <button type="button" class="login-alt-link" id="login-alt-join-student">طلب انضمام كطالب</button>
+                                <span class="login-alt-sep" aria-hidden="true">|</span>
+                                <button type="button" class="login-alt-link" id="login-alt-join-guest">انضمام كضيف | ولي أمر</button>
+                            </p>
                             <button type="submit" class="btn-block btn-primary-block submit-btn" id="login-submit-btn">
                                 متابعة
                             </button>
@@ -256,101 +311,228 @@
                     </form>
                 </div>
 
-                <!-- الواجهة الثانية: تقديم طلب انضمام -->
+                <!-- الواجهة الثانية: تقديم طلب انضمام (متعدد الخطوات) -->
                 <div class="form-view hidden" id="register-view">
-                    <form id="register-form" class="join-request-form" novalidate>
-                        <div class="field">
-                            <label class="field-label" for="reg-name">الاسم الرباعي للطالب</label>
-                            <div class="input-wrap">
-                                <input class="form-input" type="text" id="reg-name"
-                                    placeholder="مثال: أحمد عبد الله محمد الزبير" required>
+                    <form id="register-form" class="join-request-form join-wizard" novalidate>
+                        <button type="button" class="auth-back-link" id="register-back-login">← العودة لتسجيل الدخول</button>
+                        <div class="reg-wizard-body" id="reg-wizard-body">
+                            <div class="reg-wizard-step is-active" data-step="1">
+                                <div class="reg-step-head">
+                                    <span class="reg-step-badge">1</span>
+                                    <h3 class="reg-step-title">ما اسم الطالب؟</h3>
+                                    <p class="reg-step-sub">أدخل الاسم الرباعي الكامل بالعربية</p>
+                                </div>
+                                <div class="field">
+                                    <label class="field-label" for="reg-name">الاسم الرباعي للطالب</label>
+                                    <div class="input-wrap">
+                                        <input class="form-input" type="text" id="reg-name"
+                                            placeholder="مثال: أحمد عبد الله محمد الزبير" required autofocus>
+                                    </div>
+                                    <div class="field-error" id="err-reg-name">أدخل اسماً رباعياً كاملاً بالعربية.</div>
+                                </div>
                             </div>
-                            <div class="field-error" id="err-reg-name">أدخل اسماً رباعياً كاملاً بالعربية.</div>
-                        </div>
 
-                        <div class="field">
-                            <label class="field-label" for="reg-age">عمر الطالب</label>
-                            <div class="input-wrap">
-                                <input class="form-input" type="number" id="reg-age" min="5" max="25"
-                                    placeholder="مثال: 12" required inputmode="numeric">
+                            <div class="reg-wizard-step" data-step="2" hidden>
+                                <div class="reg-step-head">
+                                    <span class="reg-step-badge">2</span>
+                                    <h3 class="reg-step-title">كم عمر الطالب؟</h3>
+                                    <p class="reg-step-sub">من 5 إلى 25 سنة</p>
+                                </div>
+                                <div class="field">
+                                    <label class="field-label" for="reg-age">عمر الطالب</label>
+                                    <div class="input-wrap">
+                                        <input class="form-input" type="number" id="reg-age" min="5" max="25"
+                                            placeholder="مثال: 12" required inputmode="numeric">
+                                    </div>
+                                    <div class="field-error" id="err-reg-age">أدخل عمراً صحيحاً بين 5 و 25 سنة.</div>
+                                </div>
                             </div>
-                            <div class="field-error" id="err-reg-age">أدخل عمراً صحيحاً بين 5 و 25 سنة.</div>
-                        </div>
 
-                        <div class="field">
-                            <div class="phone-field-head">
-                                <label class="field-label" for="reg-phone">رقم هاتف ولي الأمر</label>
-                                <label class="intl-toggle" for="reg-intl-toggle">
-                                    <input type="checkbox" id="reg-intl-toggle">
-                                    <span class="intl-toggle-label">أنا خارج اليمن</span>
-                                </label>
+                            <div class="reg-wizard-step" data-step="3" hidden>
+                                <div class="reg-step-head">
+                                    <span class="reg-step-badge">3</span>
+                                    <h3 class="reg-step-title">رقم هاتف ولي الأمر</h3>
+                                    <p class="reg-step-sub">للتواصل عند الموافقة على الطلب</p>
+                                </div>
+                                <div class="field">
+                                    <div class="phone-field-head">
+                                        <label class="field-label" for="reg-phone">رقم الهاتف</label>
+                                        <label class="intl-toggle" for="reg-intl-toggle">
+                                            <input type="checkbox" id="reg-intl-toggle">
+                                            <span class="intl-toggle-label">أنا خارج اليمن</span>
+                                        </label>
+                                    </div>
+                                    <div class="phone-input-row" id="phone-input-row">
+                                        <div class="country-code-wrap hidden" id="country-code-wrap">
+                                            <label class="country-code-label" for="reg-country-code">رمز الدولة</label>
+                                            <div class="country-code-field" id="reg-country-code-wrap">
+                                                <span class="country-code-prefix" aria-hidden="true">+</span>
+                                                <input class="form-input country-code-input" type="text" id="reg-country-code"
+                                                    placeholder="966" inputmode="numeric" autocomplete="tel-country-code"
+                                                    maxlength="3" pattern="[0-9]*" lang="en"
+                                                    spellcheck="false" autocapitalize="off" autocorrect="off"
+                                                    aria-label="رمز الدولة بدون علامة الزائد">
+                                            </div>
+                                        </div>
+                                        <div class="input-wrap phone-input-wrap" id="reg-phone-wrap">
+                                            <input class="form-input" type="text" id="reg-phone"
+                                                placeholder="7XXXXXXXX (مثال: 777123456)" required inputmode="numeric"
+                                                maxlength="9" pattern="[0-9]*" autocomplete="tel-national" lang="en"
+                                                spellcheck="false" autocapitalize="off" autocorrect="off">
+                                        </div>
+                                    </div>
+                                    <div class="field-error" id="err-reg-phone">أدخل رقم يمني صحيح: 9 أرقام ويبدأ بـ 7.</div>
+                                </div>
                             </div>
-                            <div class="phone-input-row" id="phone-input-row">
-                                <div class="country-code-wrap hidden" id="country-code-wrap">
-                                    <label class="country-code-label" for="reg-country-code">رمز الدولة</label>
-                                    <div class="country-code-field" id="reg-country-code-wrap">
-                                        <span class="country-code-prefix" aria-hidden="true">+</span>
-                                        <input class="form-input country-code-input" type="text" id="reg-country-code"
-                                            placeholder="966" inputmode="numeric" autocomplete="tel-country-code"
-                                            maxlength="3" pattern="[0-9]*" lang="en"
-                                            spellcheck="false" autocapitalize="off" autocorrect="off"
-                                            aria-label="رمز الدولة بدون علامة الزائد">
+
+                            <div class="reg-wizard-step" data-step="4" hidden>
+                                <div class="reg-step-head">
+                                    <span class="reg-step-badge">4</span>
+                                    <h3 class="reg-step-title">مستوى الحفظ الحالي</h3>
+                                    <p class="reg-step-sub">اختر المستوى المناسب للطالب</p>
+                                </div>
+                                <div class="field">
+                                    <label class="field-label" for="reg-memorization">مستوى الحفظ</label>
+                                    <div class="input-wrap has-select">
+                                        <select class="form-input" id="reg-memorization" required>
+                                            <option value="">— اختر مستوى الحفظ —</option>
+                                            <option value="none">مبتدئ — لا يحفظ</option>
+                                            <option value="juz30">جزء عمّ</option>
+                                            <option value="juz1-5">من 1 إلى 5 أجزاء</option>
+                                            <option value="juz6-10">من 6 إلى 10 أجزاء</option>
+                                            <option value="juz11-20">من 11 إلى 20 جزءاً</option>
+                                            <option value="full">حافظ للقرآن كاملاً</option>
+                                        </select>
+                                    </div>
+                                    <div class="field-error" id="err-reg-memorization">يرجى اختيار مستوى الحفظ.</div>
+                                </div>
+                            </div>
+
+                            <div class="reg-wizard-step" data-step="5" hidden>
+                                <div class="reg-step-head">
+                                    <span class="reg-step-badge">5</span>
+                                    <h3 class="reg-step-title">اختر كلمة سر</h3>
+                                    <p class="reg-step-sub">ستستخدمها لتسجيل الدخول بعد موافقة المشرف</p>
+                                </div>
+                                <div class="field">
+                                    <label class="field-label" for="reg-pass">كلمة السر</label>
+                                    <div class="input-wrap has-pass-toggle" id="reg-pass-wrap">
+                                        <input class="form-input pass-input" type="password" id="reg-pass"
+                                            placeholder="أحرف صغيرة إنجليزية وأرقام — 8 خانات على الأقل" required autocomplete="new-password">
+                                        <button type="button" class="pass-toggle-btn" id="reg-pass-toggle"
+                                            aria-label="إظهار كلمة السر" aria-pressed="false">
+                                            <svg class="pass-eye-icon pass-eye-open" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path d="M12 5C7 5 2.73 8.11 1 12.5c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 8.11 17 5 12 5Zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                                            </svg>
+                                            <svg class="pass-eye-icon pass-eye-slash pass-eye-hidden" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path d="M3.27 3.27 2 4.54l2.09 2.09C2.73 8.11 1 12.5 1 12.5c1.73 4.39 6 7.5 11 7.5 2.09 0 4.04-.53 5.74-1.45l2.36 2.36 1.27-1.27L3.27 3.27ZM12 17.5c-2.76 0-5.22-1.25-6.88-3.22l1.46-1.46a5.002 5.002 0 0 0 7.34-1.02l1.72 1.72c-.98.62-2.12 1-3.64 1.02Zm6.12-4.78-1.55-1.55a5.002 5.002 0 0 0-6.6-6.6L9.7 4.3C10.74 4.11 11.85 4 12 4c5 0 9.27 3.11 11 7.5-.64 1.62-1.67 3.06-2.88 4.22Z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="field-error" id="err-reg-pass">كلمة السر: 8 خانات، أحرف صغيرة إنجليزية وأرقام فقط.</div>
+                                    <div class="pass-assist-row" id="reg-pass-assist">
+                                        <ul class="pass-rules" id="rules-reg-pass" aria-live="polite">
+                                            <li class="pass-rule" data-rule="length"><span class="pass-rule-dot"></span>8 خانات كحد أدنى</li>
+                                            <li class="pass-rule" data-rule="digit"><span class="pass-rule-dot"></span>تحتوي على أرقام</li>
+                                            <li class="pass-rule" data-rule="latin"><span class="pass-rule-dot"></span>أحرف إنجليزية فقط</li>
+                                            <li class="pass-rule" data-rule="lowercase"><span class="pass-rule-dot"></span>أحرف صغيرة (small) فقط</li>
+                                        </ul>
                                     </div>
                                 </div>
-                                <div class="input-wrap phone-input-wrap" id="reg-phone-wrap">
-                                    <input class="form-input" type="text" id="reg-phone"
-                                        placeholder="7XXXXXXXX (مثال: 777123456)" required inputmode="numeric"
-                                        maxlength="9" pattern="[0-9]*" autocomplete="tel-national" lang="en"
-                                        spellcheck="false" autocapitalize="off" autocorrect="off">
+                            </div>
+                        </div>
+
+                        <div class="reg-wizard-nav reg-wizard-nav--single" id="reg-wizard-nav">
+                            <button type="button" class="btn-block btn-outline-block reg-wizard-btn" id="reg-wizard-back" hidden>← رجوع</button>
+                            <button type="button" class="btn-block btn-primary-block reg-wizard-btn" id="reg-wizard-next">التالي →</button>
+                            <button type="submit" class="btn-block btn-primary-block reg-wizard-btn" id="register-submit-btn" hidden>إرسال طلب الانضمام</button>
+                        </div>
+
+                        <div class="reg-wizard-progress" id="reg-wizard-progress">
+                            <p class="reg-wizard-step-label" id="reg-step-label">الخطوة 1 من 5 — الاسم</p>
+                            <div class="reg-wizard-progress-track" aria-hidden="true">
+                                <div class="reg-wizard-progress-fill" id="reg-progress-fill"></div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <!-- الواجهة الثالثة: انضمام كضيف / ولي أمر -->
+                <div class="form-view hidden" id="guest-register-view">
+                    <form id="guest-register-form" class="join-request-form join-wizard guest-wizard" novalidate>
+                        <button type="button" class="auth-back-link" id="guest-back-login">← العودة لتسجيل الدخول</button>
+                        <p class="guest-wizard-intro">للمتابعة والاطلاع على ابنك — بدون كود أكاديمي</p>
+                        <div class="reg-wizard-body" id="guest-wizard-body">
+                            <div class="reg-wizard-step is-active" data-step="1">
+                                <div class="reg-step-head">
+                                    <span class="reg-step-badge">1</span>
+                                    <h3 class="reg-step-title">ما اسم ولي الأمر؟</h3>
+                                    <p class="reg-step-sub">أدخل اسمك الكامل</p>
+                                </div>
+                                <div class="field">
+                                    <label class="field-label" for="guest-name">اسم ولي الأمر</label>
+                                    <div class="input-wrap"><input class="form-input" type="text" id="guest-name" placeholder="مثال: عبد الله محمد الزبير" required autofocus></div>
+                                    <div class="field-error" id="err-guest-name">أدخل اسم ولي الأمر.</div>
                                 </div>
                             </div>
-                            <div class="field-error" id="err-reg-phone">أدخل رقم يمني صحيح: 9 أرقام ويبدأ بـ 7.</div>
-                        </div>
-
-                        <div class="field">
-                            <label class="field-label" for="reg-memorization">مستوى الحفظ الحالي <span class="field-optional">(اختياري)</span></label>
-                            <div class="input-wrap has-select">
-                                <select class="form-input" id="reg-memorization">
-                                    <option value="">— اختر إن وُجد —</option>
-                                    <option value="none">مبتدئ — لا يحفظ</option>
-                                    <option value="juz30">جزء عمّ</option>
-                                    <option value="juz1-5">من 1 إلى 5 أجزاء</option>
-                                    <option value="juz6-10">من 6 إلى 10 أجزاء</option>
-                                    <option value="juz11-20">من 11 إلى 20 جزءاً</option>
-                                    <option value="full">حافظ للقرآن كاملاً</option>
-                                </select>
+                            <div class="reg-wizard-step" data-step="2" hidden>
+                                <div class="reg-step-head">
+                                    <span class="reg-step-badge">2</span>
+                                    <h3 class="reg-step-title">بريدك الإلكتروني</h3>
+                                    <p class="reg-step-sub">يُستخدم للدخول بعد الموافقة</p>
+                                </div>
+                                <div class="field">
+                                    <label class="field-label" for="guest-email">البريد الإلكتروني</label>
+                                    <div class="input-wrap" id="guest-email-wrap">
+                                        <input class="form-input" type="email" id="guest-email"
+                                            placeholder="example@mail.com" required autocomplete="email" dir="ltr" lang="en" inputmode="email">
+                                    </div>
+                                    <div class="field-error" id="err-guest-email">أدخل بريداً إلكترونياً صحيحاً.</div>
+                                </div>
+                            </div>
+                            <div class="reg-wizard-step" data-step="3" hidden>
+                                <div class="reg-step-head">
+                                    <span class="reg-step-badge">3</span>
+                                    <h3 class="reg-step-title">اسم الابن المراد متابعته</h3>
+                                    <p class="reg-step-sub">اكتب اسم الطالب المسجّل أو المراد متابعته</p>
+                                </div>
+                                <div class="field">
+                                    <label class="field-label" for="guest-child">اسم الابن</label>
+                                    <div class="input-wrap"><input class="form-input" type="text" id="guest-child" placeholder="مثال: أحمد عبد الله الزبير" required></div>
+                                    <div class="field-error" id="err-guest-child">أدخل اسم الابن.</div>
+                                </div>
+                            </div>
+                            <div class="reg-wizard-step" data-step="4" hidden>
+                                <div class="reg-step-head">
+                                    <span class="reg-step-badge">4</span>
+                                    <h3 class="reg-step-title">اختر كلمة سر</h3>
+                                    <p class="reg-step-sub">ستستخدمها للدخول — بدون كود أكاديمي</p>
+                                </div>
+                                <div class="field">
+                                    <label class="field-label" for="guest-pass">كلمة السر</label>
+                                    <div class="input-wrap" id="guest-pass-wrap">
+                                        <input class="form-input pass-input" type="password" id="guest-pass" placeholder="أحرف صغيرة إنجليزية وأرقام — 8 خانات على الأقل" required autocomplete="new-password">
+                                    </div>
+                                    <div class="field-error" id="err-guest-pass">كلمة السر: 8 خانات، أحرف صغيرة إنجليزية وأرقام فقط.</div>
+                                    <ul class="pass-rules" id="rules-guest-pass" aria-live="polite">
+                                        <li class="pass-rule" data-rule="length"><span class="pass-rule-dot"></span>8 خانات كحد أدنى</li>
+                                        <li class="pass-rule" data-rule="digit"><span class="pass-rule-dot"></span>تحتوي على أرقام</li>
+                                        <li class="pass-rule" data-rule="latin"><span class="pass-rule-dot"></span>أحرف إنجليزية فقط</li>
+                                        <li class="pass-rule" data-rule="lowercase"><span class="pass-rule-dot"></span>أحرف صغيرة (small) فقط</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="field">
-                            <label class="field-label" for="reg-pass">كلمة السر</label>
-                            <div class="input-wrap has-pass-toggle" id="reg-pass-wrap">
-                                <input class="form-input pass-input" type="password" id="reg-pass"
-                                    placeholder="أحرف صغيرة إنجليزية وأرقام — 8 خانات على الأقل" required autocomplete="new-password">
-                                <button type="button" class="pass-toggle-btn" id="reg-pass-toggle"
-                                    aria-label="إظهار كلمة السر" aria-pressed="false">
-                                    <svg class="pass-eye-icon pass-eye-open" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M12 5C7 5 2.73 8.11 1 12.5c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 8.11 17 5 12 5Zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
-                                    </svg>
-                                    <svg class="pass-eye-icon pass-eye-slash pass-eye-hidden" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M3.27 3.27 2 4.54l2.09 2.09C2.73 8.11 1 12.5 1 12.5c1.73 4.39 6 7.5 11 7.5 2.09 0 4.04-.53 5.74-1.45l2.36 2.36 1.27-1.27L3.27 3.27ZM12 17.5c-2.76 0-5.22-1.25-6.88-3.22l1.46-1.46a5.002 5.002 0 0 0 7.34-1.02l1.72 1.72c-.98.62-2.12 1-3.64 1.02Zm6.12-4.78-1.55-1.55a5.002 5.002 0 0 0-6.6-6.6L9.7 4.3C10.74 4.11 11.85 4 12 4c5 0 9.27 3.11 11 7.5-.64 1.62-1.67 3.06-2.88 4.22Z"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="field-error" id="err-reg-pass">كلمة السر: 8 خانات، أحرف صغيرة إنجليزية وأرقام فقط.</div>
-                            <div class="pass-assist-row" id="reg-pass-assist">
-                                <ul class="pass-rules" id="rules-reg-pass" aria-live="polite">
-                                    <li class="pass-rule" data-rule="length"><span class="pass-rule-dot"></span>8 خانات كحد أدنى</li>
-                                    <li class="pass-rule" data-rule="digit"><span class="pass-rule-dot"></span>تحتوي على أرقام</li>
-                                    <li class="pass-rule" data-rule="latin"><span class="pass-rule-dot"></span>أحرف إنجليزية فقط</li>
-                                    <li class="pass-rule" data-rule="lowercase"><span class="pass-rule-dot"></span>أحرف صغيرة (small) فقط</li>
-                                </ul>
-                            </div>
+                        <div class="reg-wizard-nav reg-wizard-nav--single" id="guest-wizard-nav">
+                            <button type="button" class="btn-block btn-outline-block reg-wizard-btn" id="guest-wizard-back" hidden>← رجوع</button>
+                            <button type="button" class="btn-block btn-primary-block reg-wizard-btn" id="guest-wizard-next">التالي →</button>
+                            <button type="submit" class="btn-block btn-primary-block reg-wizard-btn" id="guest-register-submit-btn" hidden>إرسال طلب الانضمام كضيف</button>
                         </div>
-
-                        <button type="submit" class="btn-block btn-primary-block" style="margin-top: 8px;">
-                            إرسال طلب الانضمام
-                        </button>
+                        <div class="reg-wizard-progress" id="guest-wizard-progress">
+                            <p class="reg-wizard-step-label" id="guest-step-label">الخطوة 1 من 4 — الاسم</p>
+                            <div class="reg-wizard-progress-track" aria-hidden="true"><div class="reg-wizard-progress-fill" id="guest-progress-fill"></div></div>
+                        </div>
                     </form>
                 </div>
 
@@ -358,61 +540,159 @@
         </div><!-- /auth-card -->
     </section>
 
-    <!-- === بطاقات الويدجت === -->
-    <section class="widgets-section" aria-label="معلومات الحلقة">
-        <div class="widgets-grid">
+</main><!-- /site-main -->
 
-            <!-- بطاقة مواقيت الصلاة -->
-            <article class="widget" id="prayer-widget" role="button" tabindex="0" aria-label="مواقيت الصلاة">
-                <div class="widget-head">
-                    <div class="widget-icon-wrap">
-                        <svg viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10"/>
-                            <polyline points="12 6 12 12 16 14"/>
-                        </svg>
+    <!-- === إنجازات التحفيظ — منصة التتويج === -->
+    <section class="tahfeez-showcase tahfeez-showcase--bottom" id="tahfeez-showcase" aria-label="إنجازات التحفيظ">
+        <div class="tahfeez-showcase-bg" aria-hidden="true"></div>
+        <div class="tahfeez-showcase-fog" aria-hidden="true"></div>
+        <div class="tahfeez-showcase-inner">
+            <header class="tahfeez-showcase-head">
+                <span class="tahfeez-showcase-eyebrow">مسيرة التحفيظ</span>
+                <h2 class="tahfeez-showcase-title">نجوم الحفظ والاجتهاد</h2>
+            </header>
+
+            <article class="tahfeez-champions-unified" id="tahfeez-champions-unified">
+                <div class="tahfeez-champions-unified-head">
+                    <span class="tahfeez-champions-unified-badge">المركز الأول — السنة الماضية</span>
+                    <h3 class="tahfeez-champions-unified-title">أبطال التحفيظ</h3>
+                </div>
+                <div class="tahfeez-champions-duo">
+                    <div class="tahfeez-champion-mini" id="tahfeez-champion-mem">
+                        <span class="tahfeez-champion-mini-tag">الأكثر حفظاً</span>
+                        <div class="tahfeez-champion-photo-wrap">
+                            <img class="tahfeez-champion-photo" id="tahfeez-mem-photo" src="assets/tahfeez/tahfeez-champion-memorization.png" alt="">
+                        </div>
+                        <p class="tahfeez-champion-name" id="tahfeez-mem-name">—</p>
+                        <p class="tahfeez-champion-meta" id="tahfeez-mem-meta">—</p>
                     </div>
-                    <span class="widget-title">مواقيت الصلاة</span>
-                </div>
-                <div class="prayer-row">
-                    <span class="prayer-label" id="next-prayer-name">صلاة الظهر</span>
-                    <span class="prayer-time"  id="next-prayer-time">12:20 م</span>
-                </div>
-                <div class="countdown-row">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                    <span>المتبقي:</span>
-                    <span class="countdown-value" id="prayer-countdown">--:--:--</span>
+                    <div class="tahfeez-champions-divider" aria-hidden="true"></div>
+                    <div class="tahfeez-champion-mini" id="tahfeez-champion-att">
+                        <span class="tahfeez-champion-mini-tag">الأكثر اهتماماً</span>
+                        <div class="tahfeez-champion-photo-wrap">
+                            <img class="tahfeez-champion-photo" id="tahfeez-att-photo" src="assets/tahfeez/tahfeez-champion-attendance.png" alt="">
+                        </div>
+                        <p class="tahfeez-champion-name" id="tahfeez-att-name">—</p>
+                        <p class="tahfeez-champion-meta" id="tahfeez-att-meta">—</p>
+                    </div>
                 </div>
             </article>
 
-            <!-- بطاقة الإعلانات -->
-            <article class="widget" id="ann-widget" role="button" tabindex="0" aria-label="إعلانات الحلقات">
-                <div class="widget-head">
-                    <div class="widget-icon-wrap">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                        </svg>
-                    </div>
-                    <span class="widget-title">إعلانات الحلقات</span>
+            <div class="tahfeez-month-block">
+                <h3 class="tahfeez-month-title">متصدّرو هذا الشهر</h3>
+                <div class="tahfeez-podium" id="tahfeez-podium" role="list"></div>
+            </div>
+
+            <article class="tahfeez-ideal-card" id="tahfeez-ideal-card">
+                <div class="tahfeez-ideal-photo-wrap">
+                    <img class="tahfeez-ideal-photo" id="tahfeez-ideal-photo" src="assets/tahfeez/tahfeez-ideal-student.png" alt="">
                 </div>
-                <div id="ann-list">
-                    <!-- تُملأ بـ JS -->
+                <div class="tahfeez-ideal-copy">
+                    <span class="tahfeez-ideal-badge">الطالب المثالي — هذا الشهر</span>
+                    <h4 class="tahfeez-ideal-name" id="tahfeez-ideal-name">—</h4>
+                    <p class="tahfeez-ideal-meta" id="tahfeez-ideal-meta">—</p>
                 </div>
             </article>
-
         </div>
     </section>
 
-</main><!-- /site-main -->
+    <!-- === إحصائيات المجمع — أسفل الصفحة === -->
+    <section class="majma-stats majma-stats--bottom" id="majma-stats" aria-label="إحصائيات حلقات المجمع">
+        <div class="majma-stats-bg" aria-hidden="true"></div>
+        <div class="majma-stats-inner">
+            <header class="majma-stats-head">
+                <div class="majma-stats-globe-wrap" aria-hidden="true">
+                    <span class="majma-stats-globe-ring"></span>
+                    <span class="majma-stats-globe-ring majma-stats-globe-ring--delay"></span>
+                    <svg class="majma-stats-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M2 12h20"/>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                </div>
+                <div class="majma-stats-titles">
+                    <span class="majma-stats-eyebrow">إنجازات عالمية</span>
+                    <h2 class="majma-stats-title">أرقام تُفخر بها حلقاتنا</h2>
+                    <p class="majma-stats-sub">حفاظ وطلاب وحلقات — مسيرة قرآنية ممتدة</p>
+                </div>
+            </header>
+
+            <div class="majma-stats-grid" role="list">
+                <article class="majma-stat" role="listitem">
+                    <div class="majma-stat-value-wrap">
+                        <span class="majma-stat-value" id="stat-hafiz-year" data-stat-value="0">0</span>
+                        <span class="majma-stat-plus" aria-hidden="true">+</span>
+                    </div>
+                    <span class="majma-stat-label">حفاظ المصحف هذا العام</span>
+                </article>
+                <article class="majma-stat" role="listitem">
+                    <div class="majma-stat-value-wrap">
+                        <span class="majma-stat-value" id="stat-hafiz-decade" data-stat-value="0">0</span>
+                        <span class="majma-stat-plus" aria-hidden="true">+</span>
+                    </div>
+                    <span class="majma-stat-label">حفاظ آخر 10 سنوات</span>
+                </article>
+                <article class="majma-stat majma-stat--highlight" role="listitem">
+                    <div class="majma-stat-value-wrap">
+                        <span class="majma-stat-value" id="stat-youngest-age" data-stat-value="0">0</span>
+                        <span class="majma-stat-unit" id="stat-youngest-unit">سنة</span>
+                    </div>
+                    <span class="majma-stat-label">أصغر حافظ</span>
+                    <span class="majma-stat-hint" id="stat-youngest-hint">عمره بالسنوات</span>
+                </article>
+                <article class="majma-stat" role="listitem">
+                    <div class="majma-stat-value-wrap">
+                        <span class="majma-stat-value" id="stat-students" data-stat-value="0">0</span>
+                        <span class="majma-stat-plus" aria-hidden="true">+</span>
+                    </div>
+                    <span class="majma-stat-label">عدد الطلاب</span>
+                </article>
+                <article class="majma-stat" role="listitem">
+                    <div class="majma-stat-value-wrap">
+                        <span class="majma-stat-value" id="stat-halaqat" data-stat-value="0">0</span>
+                    </div>
+                    <span class="majma-stat-label">عدد الحلقات</span>
+                </article>
+            </div>
+        </div>
+        <div class="majma-stats-fog" aria-hidden="true"></div>
+    </section>
 
 <footer class="site-footer">
+    <div class="footer-donate">
+        <div class="footer-donate-inner">
+            <div class="footer-donate-head">
+                <span class="footer-donate-spark" aria-hidden="true">✦</span>
+                <span class="footer-donate-title">ادعم حلقاتنا — جزاك الله خيراً</span>
+                <span class="footer-donate-spark" aria-hidden="true">✦</span>
+            </div>
+            <div class="footer-donate-btns">
+                <a href="#" class="footer-donate-btn footer-donate-btn--atm" id="footer-support-atm">
+                    <span class="footer-donate-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/><line x1="14" y1="15" x2="18" y2="15"/></svg>
+                    </span>
+                    <span class="footer-donate-label">
+                        <strong>دعم عبر صراف</strong>
+                        <small>تحويل سريع من أي صراف</small>
+                    </span>
+                </a>
+                <a href="#" class="footer-donate-btn footer-donate-btn--bank" id="footer-support-bank">
+                    <span class="footer-donate-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M3 10h18"/><path d="M5 10V7l7-4 7 4v3"/><rect x="5" y="10" width="14" height="10" rx="1"/><path d="M9 14h.01"/><path d="M15 14h.01"/></svg>
+                    </span>
+                    <span class="footer-donate-label">
+                        <strong>دعم عبر بنك</strong>
+                        <small>حوالة بنكية مباشرة</small>
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
     <div class="footer-inner">
         <span class="footer-copy">© <span id="yr">2026</span> حلقات مجمع الزبير ابن العوام. جميع الحقوق محفوظة.</span>
         <div class="footer-links">
             <a href="#" class="footer-link" id="footer-dev">صفحة المطور</a>
-            <span style="color:var(--border-light);">|</span>
+            <span class="footer-sep" aria-hidden="true">|</span>
             <a href="#" class="footer-link" id="footer-support">الدعم الفني</a>
         </div>
     </div>
@@ -436,11 +716,6 @@
         <button class="bottom-nav-item" id="bnav-halaqat" data-target="halaqat" type="button">
             <svg viewBox="0 0 24 24"><path d="M4 19V7l8-4 8 4v12"/><path d="M4 19h16"/><path d="M9 19V9l3-1.5L15 9v10"/></svg>
             الحلقات
-        </button>
-
-        <button class="bottom-nav-item" id="bnav-prayer" data-target="prayer" type="button">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            الصلاة
         </button>
 
         <button class="bottom-nav-item" id="bnav-dev" data-target="developer" type="button">
@@ -496,36 +771,6 @@
     </div>
 </div>
 
-<!-- --- نافذة مواقيت الصلاة التفصيلية --- -->
-<div class="modal-overlay" id="prayer-modal-overlay" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="prayer-modal-title">
-        <div class="modal-header">
-            <h3 class="modal-title" id="prayer-modal-title">مواقيت الصلاة اليوم</h3>
-            <button class="modal-close" id="prayer-modal-close" aria-label="إغلاق">
-                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-        </div>
-        <div class="modal-body" id="prayer-modal-body" style="gap:10px">
-            <!-- تُملأ بـ JS -->
-        </div>
-    </div>
-</div>
-
-<!-- --- نافذة الإعلانات التفصيلية --- -->
-<div class="modal-overlay" id="ann-modal-overlay" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ann-modal-title">
-        <div class="modal-header">
-            <h3 class="modal-title" id="ann-modal-title">آخر الإعلانات والأخبار</h3>
-            <button class="modal-close" id="ann-modal-close" aria-label="إغلاق">
-                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-        </div>
-        <div class="modal-body" id="ann-modal-body" style="gap:14px">
-            <!-- تُملأ بـ JS -->
-        </div>
-    </div>
-</div>
-
 <!-- --- نافذة معلومات عامة (للروابط الجانبية) --- -->
 <div class="modal-overlay" id="info-modal-overlay" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="info-modal-title">
@@ -544,7 +789,37 @@
 <!-- الإشعار العائم -->
 <div class="toast" id="toast" role="alert" aria-live="polite"></div>
 
+<!-- شاشة نجاح التسجيل — ملء الصفحة -->
+<div class="reg-success-screen" id="reg-success-screen" hidden role="dialog" aria-modal="true" aria-labelledby="reg-success-title">
+    <div class="reg-success-backdrop" aria-hidden="true"></div>
+    <div class="reg-success-celebrate" aria-hidden="true">
+        <div class="reg-success-bubbles" id="reg-success-bubbles"></div>
+        <div class="reg-success-confetti" id="reg-success-confetti"></div>
+        <div class="reg-success-sparkles" id="reg-success-sparkles"></div>
+    </div>
+    <div class="reg-success-center">
+        <div class="reg-success-card">
+            <div class="reg-success-icon" aria-hidden="true">🎉</div>
+            <h2 class="reg-success-title" id="reg-success-title">تم إرسال طلبك بنجاح!</h2>
+            <p class="reg-success-lead">بارك الله فيك — وصل طلب انضمامك إلى إدارة المجمع وسيتم مراجعته قريباً.</p>
+            <div class="reg-success-guide">
+                <h3>ماذا بعد؟</h3>
+                <ul>
+                    <li><strong>انتظر موافقة المشرف</strong> — سيظهر طلبك في لوحة التحكم للمراجعة.</li>
+                    <li><strong>عند القبول</strong> — ستصلك بيانات الدخول (رمز الطالب + كلمة السر التي اخترتها).</li>
+                    <li><strong>لا تغلق الصفحة بسرعة</strong> — يمكنك العودة لاحقاً وتسجيل الدخول فور الموافقة.</li>
+                    <li><strong>تأكد من صحة رقم الهاتف</strong> — قد يُستخدم للتواصل مع ولي الأمر.</li>
+                </ul>
+            </div>
+            <p class="reg-success-wait">⏳ يُرجى الانتظار حتى يوافق المشرف على طلبك — جزاك الله خيراً.</p>
+            <button type="button" class="btn-block btn-primary-block" id="reg-success-done">العودة لتسجيل الدخول</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="script.js"></script>
+<script src="banner-store.js"></script>
+<script src="script.js?v=20260612z"></script>
+<script src="guest-auth.js?v=20260612l"></script>
 </body>
 </html>

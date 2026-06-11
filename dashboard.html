@@ -3,10 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="لوحة تحكم حلقات مجمع الزبير ابن العوام — إدارة الطلاب والحلقات والتقارير.">
+    <meta name="description" content="لوحة تحكم حلقات مجمع الزبير ابن العوام — إدارة المستجدين والطلاب والحلقات والمدرسين.">
     <title>لوحة التحكم | حلقات مجمع الزبير</title>
-    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="dashboard.css?v=20260612g">
     <link rel="stylesheet" href="scrollbar.css">
+    <script>
+        (function () {
+            var VALID = ['overview', 'students', 'halaqat', 'new-requests', 'parents', 'teachers', 'content', 'ads'];
+            var hash = (location.hash || '').replace(/^#/, '').trim();
+            var saved = '';
+            try { saved = localStorage.getItem('dash_active_tab') || ''; } catch (e) {}
+            var tab = VALID.indexOf(hash) >= 0 ? hash : (VALID.indexOf(saved) >= 0 ? saved : 'overview');
+            document.documentElement.setAttribute('data-dash-tab', tab);
+        })();
+    </script>
+    <script src="ui-zoom.js"></script>
 </head>
 <body>
 
@@ -46,26 +57,31 @@
             </button>
         </div>
         <nav class="dash-nav" role="navigation">
-            <button type="button" class="dash-nav-link active" data-tab="overview">
+            <button type="button" class="dash-nav-link" data-tab="overview">
                 <span class="dash-nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
                 <span class="dash-nav-label">الإحصائيات</span>
             </button>
-            <button type="button" class="dash-nav-link" data-tab="students">
-                <span class="dash-nav-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-                <span class="dash-nav-label">الطلاب والحلقات</span>
-            </button>
             <button type="button" class="dash-nav-link" data-tab="new-requests">
                 <span class="dash-nav-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></span>
-                <span class="dash-nav-label">الطلاب الجدد</span>
+                <span class="dash-nav-label">المستجدين</span>
                 <span class="dash-nav-badge" id="new-requests-badge" hidden>0</span>
             </button>
-            <button type="button" class="dash-nav-link" data-tab="parents">
-                <span class="dash-nav-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
-                <span class="dash-nav-label">أولياء الأمور</span>
+            <button type="button" class="dash-nav-link" data-tab="students">
+                <span class="dash-nav-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                <span class="dash-nav-label">الطلاب</span>
+            </button>
+            <button type="button" class="dash-nav-link" data-tab="halaqat">
+                <span class="dash-nav-icon"><svg viewBox="0 0 24 24"><path d="M4 19V7l8-4 8 4v12"/><path d="M4 19h16"/><path d="M9 19V9l3-1.5L15 9v10"/></svg></span>
+                <span class="dash-nav-label">الحلقات</span>
             </button>
             <button type="button" class="dash-nav-link" data-tab="teachers">
                 <span class="dash-nav-icon"><svg viewBox="0 0 24 24"><path d="M4 19V7l8-4 8 4v12"/><path d="M4 19h16"/><path d="M8 11h8"/><path d="M8 15h5"/></svg></span>
-                <span class="dash-nav-label">المدرسون</span>
+                <span class="dash-nav-label">المدرسين</span>
+            </button>
+            <button type="button" class="dash-nav-link" data-tab="parents">
+                <span class="dash-nav-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                <span class="dash-nav-label">الضيوف وأولياء الأمور</span>
+                <span class="dash-nav-badge" id="guest-requests-badge" hidden>0</span>
             </button>
             <button type="button" class="dash-nav-link" data-tab="content">
                 <span class="dash-nav-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
@@ -82,7 +98,7 @@
     <main class="dash-main">
 
         <!-- ═══ الإحصائيات ═══ -->
-        <section class="dash-panel active" id="panel-overview" data-panel="overview">
+        <section class="dash-panel" id="panel-overview" data-panel="overview">
             <div class="dash-page-head">
                 <h1>نظرة عامة</h1>
                 <p>مؤشرات الأداء والتقارير التفاعلية للحلقات</p>
@@ -161,53 +177,151 @@
             </div>
         </section>
 
-        <!-- ═══ الطلاب والحلقات ═══ -->
+        <!-- ═══ الطلاب ═══ -->
         <section class="dash-panel" id="panel-students" data-panel="students">
             <div class="dash-page-head">
-                <h1>إدارة الطلاب والحلقات</h1>
-                <p>إضافة طلاب جديدة وتسجيل التسميع اليومي</p>
+                <h1>إدارة الطلاب</h1>
+                <p>الطلاب المعتمدون — إضافة ومتابعة بياناتهم</p>
             </div>
 
             <div class="dash-card">
                 <div class="dash-card-head"><h3>إضافة طالب جديد</h3></div>
-                <form id="add-student-form">
-                    <div class="dash-form-grid">
-                        <div class="dash-field">
-                            <label for="st-name">الاسم الكامل</label>
-                            <input class="dash-input" type="text" id="st-name" placeholder="مثال: سالم أحمد الزبير" required>
+                <form id="add-student-form" class="st-wizard" novalidate>
+                    <div class="st-wizard-body" id="st-wizard-body">
+                        <div class="st-wizard-step is-active" data-step="1">
+                            <div class="st-step-head">
+                                <span class="st-step-badge">1</span>
+                                <h4 class="st-step-title">ما اسم الطالب؟</h4>
+                                <p class="st-step-sub">أدخل الاسم الرباعي الكامل بالعربية</p>
+                            </div>
+                            <div class="dash-field">
+                                <label for="st-name">الاسم الرباعي للطالب</label>
+                                <div class="dash-input-wrap" id="st-name-wrap">
+                                    <input class="dash-input" type="text" id="st-name"
+                                        placeholder="مثال: أحمد عبد الله محمد الزبير" required autofocus>
+                                </div>
+                                <p class="dash-field-error" id="err-st-name">أدخل اسماً رباعياً كاملاً بالعربية.</p>
+                            </div>
                         </div>
-                        <div class="dash-field">
-                            <label for="st-halaqa">الحلقة</label>
-                            <select class="dash-input" id="st-halaqa" required>
-                                <option value="">اختر الحلقة</option>
-                                <option value="fajr">حلقة الفجر</option>
-                                <option value="duha">حلقة الضحى</option>
-                                <option value="asr">حلقة العصر</option>
-                                <option value="maghrib">حلقة المغرب</option>
-                            </select>
+
+                        <div class="st-wizard-step" data-step="2" hidden>
+                            <div class="st-step-head">
+                                <span class="st-step-badge">2</span>
+                                <h4 class="st-step-title">كم عمر الطالب؟</h4>
+                                <p class="st-step-sub">من 5 إلى 25 سنة</p>
+                            </div>
+                            <div class="dash-field">
+                                <label for="st-age">عمر الطالب</label>
+                                <div class="dash-input-wrap" id="st-age-wrap">
+                                    <input class="dash-input" type="number" id="st-age" min="5" max="25"
+                                        placeholder="مثال: 12" required inputmode="numeric">
+                                </div>
+                                <p class="dash-field-error" id="err-st-age">أدخل عمراً صحيحاً بين 5 و 25 سنة.</p>
+                            </div>
                         </div>
-                        <div class="dash-field">
-                            <label for="st-phone">جوال ولي الأمر</label>
-                            <input class="dash-input" type="tel" id="st-phone" placeholder="05XXXXXXXX" required>
+
+                        <div class="st-wizard-step" data-step="3" hidden>
+                            <div class="st-step-head">
+                                <span class="st-step-badge">3</span>
+                                <h4 class="st-step-title">رقم هاتف ولي الأمر</h4>
+                                <p class="st-step-sub">للتواصل ومتابعة الطالب</p>
+                            </div>
+                            <div class="dash-field dash-field-full">
+                                <div class="dash-phone-head">
+                                    <label for="st-phone">رقم الهاتف</label>
+                                    <label class="dash-intl-toggle" for="st-intl-toggle">
+                                        <input type="checkbox" id="st-intl-toggle">
+                                        <span>ليس يمني</span>
+                                    </label>
+                                </div>
+                                <div class="dash-phone-row" id="st-phone-row">
+                                    <div class="dash-country-wrap hidden" id="st-country-wrap">
+                                        <label class="dash-country-label" for="st-country-code">رمز الدولة</label>
+                                        <div class="dash-country-field" id="st-country-code-wrap">
+                                            <span class="dash-country-prefix" aria-hidden="true">+</span>
+                                            <input class="dash-input dash-country-input" type="text" id="st-country-code"
+                                                value="967" placeholder="967" inputmode="numeric" maxlength="3" lang="en"
+                                                spellcheck="false" autocapitalize="off" autocomplete="tel-country-code">
+                                        </div>
+                                    </div>
+                                    <div class="dash-input-wrap dash-phone-input-wrap" id="st-phone-wrap">
+                                        <input class="dash-input" type="text" id="st-phone"
+                                            placeholder="7XXXXXXXX (مثال: 777123456)" inputmode="numeric" maxlength="9" required
+                                            lang="en" spellcheck="false" autocapitalize="off" autocomplete="tel-national">
+                                    </div>
+                                </div>
+                                <ul class="dash-pass-rules" id="st-phone-rules" aria-live="polite">
+                                    <li class="dash-pass-rule" data-rule="yemeni-start"><span class="dash-pass-rule-dot"></span>يبدأ بـ 7</li>
+                                    <li class="dash-pass-rule" data-rule="yemeni-length"><span class="dash-pass-rule-dot"></span>9 أرقام (مثال: 777123456)</li>
+                                    <li class="dash-pass-rule" data-rule="intl-code" hidden><span class="dash-pass-rule-dot"></span>رمز الدولة (1–3 أرقام)</li>
+                                    <li class="dash-pass-rule" data-rule="intl-phone" hidden><span class="dash-pass-rule-dot"></span>رقم دولي (6–15 رقم)</li>
+                                </ul>
+                                <p class="dash-field-error" id="err-st-phone">أدخل رقم يمني صحيح: 9 أرقام ويبدأ بـ 7.</p>
+                            </div>
                         </div>
-                        <div class="dash-field">
-                            <label for="st-level">المستوى</label>
-                            <select class="dash-input" id="st-level">
-                                <option value="beginner">مبتدئ</option>
-                                <option value="intermediate">متوسط</option>
-                                <option value="advanced">متقدم</option>
-                            </select>
+
+                        <div class="st-wizard-step" data-step="4" hidden>
+                            <div class="st-step-head">
+                                <span class="st-step-badge">4</span>
+                                <h4 class="st-step-title">مستوى الحفظ الحالي</h4>
+                                <p class="st-step-sub">اختر المستوى المناسب للطالب</p>
+                            </div>
+                            <div class="dash-field">
+                                <label for="st-memorization">مستوى الحفظ</label>
+                                <div class="dash-input-wrap" id="st-memorization-wrap">
+                                    <select class="dash-input" id="st-memorization" required>
+                                        <option value="">— اختر مستوى الحفظ —</option>
+                                        <option value="none">مبتدئ — لا يحفظ</option>
+                                        <option value="juz30">جزء عمّ</option>
+                                        <option value="juz1-5">من 1 إلى 5 أجزاء</option>
+                                        <option value="juz6-10">من 6 إلى 10 أجزاء</option>
+                                        <option value="juz11-20">من 11 إلى 20 جزءاً</option>
+                                        <option value="full">حافظ للقرآن كاملاً</option>
+                                    </select>
+                                </div>
+                                <p class="dash-field-error" id="err-st-memorization">يرجى اختيار مستوى الحفظ.</p>
+                            </div>
                         </div>
-                        <div class="dash-field">
-                            <label for="st-code">كود الطالب الأكاديمي</label>
-                            <input class="dash-input" type="text" id="st-code" readonly placeholder="يُولَّد تلقائياً (مثال: 202601)">
-                        </div>
-                        <div class="dash-field">
-                            <label for="st-pass">كلمة السر</label>
-                            <input class="dash-input" type="password" id="st-pass" placeholder="8 خانات — أحرف صغيرة وأرقام" required minlength="8">
+
+                        <div class="st-wizard-step" data-step="5" hidden>
+                            <div class="st-step-head">
+                                <span class="st-step-badge">5</span>
+                                <h4 class="st-step-title">اختر كلمة سر</h4>
+                                <p class="st-step-sub">ستستخدمها الطالب لتسجيل الدخول</p>
+                            </div>
+                            <div class="dash-field">
+                                <label for="st-code">كود الطالب الأكاديمي</label>
+                                <input class="dash-input" type="text" id="st-code" readonly placeholder="يُولَّد تلقائياً (مثال: 202601)">
+                            </div>
+                            <div class="dash-field dash-field-full">
+                                <label for="st-pass">كلمة السر</label>
+                                <div class="dash-input-wrap dash-pass-wrap" id="st-pass-wrap">
+                                    <input class="dash-input" type="password" id="st-pass"
+                                        placeholder="أحرف صغيرة إنجليزية وأرقام — 8 خانات على الأقل" required autocomplete="new-password">
+                                </div>
+                                <ul class="dash-pass-rules" id="st-pass-rules" aria-live="polite">
+                                    <li class="dash-pass-rule" data-rule="length"><span class="dash-pass-rule-dot"></span>8 خانات كحد أدنى</li>
+                                    <li class="dash-pass-rule" data-rule="digit"><span class="dash-pass-rule-dot"></span>تحتوي على أرقام</li>
+                                    <li class="dash-pass-rule" data-rule="latin"><span class="dash-pass-rule-dot"></span>أحرف إنجليزية فقط</li>
+                                    <li class="dash-pass-rule" data-rule="lowercase"><span class="dash-pass-rule-dot"></span>أحرف صغيرة (small) فقط</li>
+                                </ul>
+                                <p class="dash-field-error" id="err-st-pass">كلمة السر: 8 خانات، أحرف صغيرة إنجليزية وأرقام فقط.</p>
+                            </div>
                         </div>
                     </div>
-                    <button type="submit" class="dash-btn dash-btn-primary">إضافة الطالب</button>
+
+                    <div class="st-wizard-nav st-wizard-nav--single" id="st-wizard-nav">
+                        <button type="button" class="dash-btn dash-btn-outline st-wizard-btn" id="st-wizard-back" hidden>← رجوع</button>
+                        <button type="button" class="dash-btn dash-btn-primary st-wizard-btn" id="st-wizard-next">التالي →</button>
+                        <button type="submit" class="dash-btn dash-btn-primary st-wizard-btn" id="st-wizard-submit" hidden>إضافة الطالب</button>
+                    </div>
+
+                    <div class="st-wizard-progress" id="st-wizard-progress">
+                        <p class="st-wizard-step-label" id="st-step-label">الخطوة 1 من 5 — الاسم</p>
+                        <div class="st-wizard-progress-track" aria-hidden="true">
+                            <div class="st-wizard-progress-fill" id="st-progress-fill"></div>
+                        </div>
+                    </div>
                 </form>
             </div>
 
@@ -217,11 +331,11 @@
                     <table class="dash-table dash-approved-table">
                         <thead>
                             <tr>
-                                <th>اسم الطالب</th>
                                 <th>الكود الأكاديمي</th>
+                                <th>اسم الطالب</th>
                                 <th>جوال ولي الأمر</th>
+                                <th>العمر</th>
                                 <th>كلمة السر</th>
-                                <th>تاريخ القبول</th>
                                 <th>إجراءات التحكم</th>
                             </tr>
                         </thead>
@@ -232,88 +346,52 @@
                 </div>
             </div>
 
-            <div class="dash-card dash-section-gap">
-                <div class="dash-card-head"><h3>التسميع اليومي</h3></div>
-                <div class="dash-form-grid">
-                    <div class="dash-field">
-                        <label for="recite-surah">السورة</label>
-                        <input class="dash-input" type="text" id="recite-surah" placeholder="مثال: البقرة">
-                    </div>
-                    <div class="dash-field">
-                        <label for="recite-ayah">من آية — إلى آية</label>
-                        <input class="dash-input" type="text" id="recite-ayah" placeholder="1 — 5">
-                    </div>
-                </div>
-                <div class="dash-table-wrap">
-                    <table class="dash-table">
-                        <thead>
-                            <tr>
-                                <th>الطالب</th>
-                                <th>الحلقة</th>
-                                <th>آخر تسميع</th>
-                                <th>رصد سريع</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recitation-table">
-                            <tr data-student="أحمد الزبير">
-                                <td>أحمد الزبير</td>
-                                <td>الفجر</td>
-                                <td class="recite-status">—</td>
-                                <td>
-                                    <div class="dash-grade-btns">
-                                        <button type="button" class="dash-btn dash-btn-sm dash-btn-excellent" data-grade="ممتاز">ممتاز</button>
-                                        <button type="button" class="dash-btn dash-btn-sm dash-btn-good" data-grade="جيد">جيد</button>
-                                        <button type="button" class="dash-btn dash-btn-sm dash-btn-review" data-grade="مراجعة">مراجعة</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-student="محمد العتيبي">
-                                <td>محمد العتيبي</td>
-                                <td>الضحى</td>
-                                <td class="recite-status">—</td>
-                                <td>
-                                    <div class="dash-grade-btns">
-                                        <button type="button" class="dash-btn dash-btn-sm dash-btn-excellent" data-grade="ممتاز">ممتاز</button>
-                                        <button type="button" class="dash-btn dash-btn-sm dash-btn-good" data-grade="جيد">جيد</button>
-                                        <button type="button" class="dash-btn dash-btn-sm dash-btn-review" data-grade="مراجعة">مراجعة</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr data-student="عبد الرحمن فيصل">
-                                <td>عبد الرحمن فيصل</td>
-                                <td>العصر</td>
-                                <td class="recite-status">—</td>
-                                <td>
-                                    <div class="dash-grade-btns">
-                                        <button type="button" class="dash-btn dash-btn-sm dash-btn-excellent" data-grade="ممتاز">ممتاز</button>
-                                        <button type="button" class="dash-btn dash-btn-sm dash-btn-good" data-grade="جيد">جيد</button>
-                                        <button type="button" class="dash-btn dash-btn-sm dash-btn-review" data-grade="مراجعة">مراجعة</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </section>
 
-        <!-- ═══ الطلاب الجدد (طلبات الانضمام) ═══ -->
+        <!-- ═══ الحلقات ═══ -->
+        <section class="dash-panel" id="panel-halaqat" data-panel="halaqat">
+            <div class="dash-page-head">
+                <h1>إدارة الحلقات</h1>
+                <p>متابعة الحلقات النشطة وطلابها والمدرسين المسؤولين عنها</p>
+            </div>
+
+            <div class="dash-kpi-grid" id="halaqat-overview-grid"></div>
+        </section>
+
+        <!-- ═══ المستجدين (طلبات الانضمام) ═══ -->
         <section class="dash-panel" id="panel-new-requests" data-panel="new-requests">
             <div class="dash-page-head">
-                <h1>الطلاب الجدد</h1>
+                <h1>المستجدين</h1>
                 <p>طلبات الانضمام الواردة من الصفحة الرئيسية — راجعها واقبل أو ارفض</p>
             </div>
 
-            <div class="dash-card">
-                <div class="dash-card-head">
+            <div class="dash-ads-subtabs" role="tablist" aria-label="تبويبات المستجدين">
+                <button type="button" class="dash-ads-subtab is-active" data-requests-view="pending" role="tab" aria-selected="true">طلبات جديدة</button>
+                <button type="button" class="dash-ads-subtab" data-requests-view="archive" role="tab" aria-selected="false">أرشيف الطلاب</button>
+            </div>
+
+            <div class="dash-card dash-ads-view-panel is-active" id="requests-view-pending" data-requests-panel="pending">
+                <div class="dash-card-head dash-card-head-row">
                     <h3>طلبات بانتظار الموافقة</h3>
-                    <span class="dash-requests-count" id="new-requests-count">0 طلب</span>
+                    <div class="dash-card-head-actions">
+                        <span class="dash-requests-count" id="new-requests-count">0 طلب</span>
+                    </div>
+                </div>
+                <div class="dash-bulk-bar" id="pending-bulk-bar" hidden>
+                    <span class="dash-bulk-count" id="pending-selected-count">0 محدد</span>
+                    <button type="button" class="dash-btn dash-btn-sm dash-btn-accept" data-bulk-pending="accept">قبول المحدد</button>
+                    <button type="button" class="dash-btn dash-btn-sm dash-btn-reject" data-bulk-pending="reject">رفض المحدد</button>
                 </div>
                 <div class="dash-table-wrap dash-requests-table-wrap">
                     <table class="dash-table dash-requests-table">
                         <thead>
                             <tr>
+                                <th class="dash-check-col">
+                                    <input type="checkbox" id="pending-select-all" class="dash-row-check" aria-label="تحديد المعروض">
+                                </th>
                                 <th>اسم الطالب</th>
+                                <th>العمر</th>
+                                <th>مستوى الحفظ</th>
                                 <th>رقم الهاتف</th>
                                 <th>كلمة السر</th>
                                 <th>وقت وتاريخ التسجيل</th>
@@ -321,86 +399,131 @@
                             </tr>
                         </thead>
                         <tbody id="new-requests-table-body">
-                            <tr class="dash-table-empty"><td colspan="5">لا توجد طلبات جديدة حالياً.</td></tr>
+                            <tr class="dash-skeleton-row" aria-hidden="true"><td class="dash-check-col"><span class="dash-skeleton-box"></span></td><td><span class="dash-skeleton-line" style="width:74%"></span></td><td><span class="dash-skeleton-line" style="width:38%"></span></td><td><span class="dash-skeleton-line" style="width:86%"></span></td><td><span class="dash-skeleton-line" style="width:58%"></span></td><td><span class="dash-skeleton-line" style="width:46%"></span></td><td><span class="dash-skeleton-line" style="width:78%"></span></td><td><span class="dash-skeleton-line" style="width:68%"></span></td></tr>
+                            <tr class="dash-skeleton-row" aria-hidden="true"><td class="dash-check-col"><span class="dash-skeleton-box"></span></td><td><span class="dash-skeleton-line" style="width:74%"></span></td><td><span class="dash-skeleton-line" style="width:38%"></span></td><td><span class="dash-skeleton-line" style="width:86%"></span></td><td><span class="dash-skeleton-line" style="width:58%"></span></td><td><span class="dash-skeleton-line" style="width:46%"></span></td><td><span class="dash-skeleton-line" style="width:78%"></span></td><td><span class="dash-skeleton-line" style="width:68%"></span></td></tr>
+                            <tr class="dash-skeleton-row" aria-hidden="true"><td class="dash-check-col"><span class="dash-skeleton-box"></span></td><td><span class="dash-skeleton-line" style="width:74%"></span></td><td><span class="dash-skeleton-line" style="width:38%"></span></td><td><span class="dash-skeleton-line" style="width:86%"></span></td><td><span class="dash-skeleton-line" style="width:58%"></span></td><td><span class="dash-skeleton-line" style="width:46%"></span></td><td><span class="dash-skeleton-line" style="width:78%"></span></td><td><span class="dash-skeleton-line" style="width:68%"></span></td></tr>
+                            <tr class="dash-skeleton-row" aria-hidden="true"><td class="dash-check-col"><span class="dash-skeleton-box"></span></td><td><span class="dash-skeleton-line" style="width:74%"></span></td><td><span class="dash-skeleton-line" style="width:38%"></span></td><td><span class="dash-skeleton-line" style="width:86%"></span></td><td><span class="dash-skeleton-line" style="width:58%"></span></td><td><span class="dash-skeleton-line" style="width:46%"></span></td><td><span class="dash-skeleton-line" style="width:78%"></span></td><td><span class="dash-skeleton-line" style="width:68%"></span></td></tr>
+                            <tr class="dash-skeleton-row" aria-hidden="true"><td class="dash-check-col"><span class="dash-skeleton-box"></span></td><td><span class="dash-skeleton-line" style="width:74%"></span></td><td><span class="dash-skeleton-line" style="width:38%"></span></td><td><span class="dash-skeleton-line" style="width:86%"></span></td><td><span class="dash-skeleton-line" style="width:58%"></span></td><td><span class="dash-skeleton-line" style="width:46%"></span></td><td><span class="dash-skeleton-line" style="width:78%"></span></td><td><span class="dash-skeleton-line" style="width:68%"></span></td></tr>
+                            <tr class="dash-skeleton-row" aria-hidden="true"><td class="dash-check-col"><span class="dash-skeleton-box"></span></td><td><span class="dash-skeleton-line" style="width:74%"></span></td><td><span class="dash-skeleton-line" style="width:38%"></span></td><td><span class="dash-skeleton-line" style="width:86%"></span></td><td><span class="dash-skeleton-line" style="width:58%"></span></td><td><span class="dash-skeleton-line" style="width:46%"></span></td><td><span class="dash-skeleton-line" style="width:78%"></span></td><td><span class="dash-skeleton-line" style="width:68%"></span></td></tr>
+                            <tr class="dash-skeleton-row" aria-hidden="true"><td class="dash-check-col"><span class="dash-skeleton-box"></span></td><td><span class="dash-skeleton-line" style="width:74%"></span></td><td><span class="dash-skeleton-line" style="width:38%"></span></td><td><span class="dash-skeleton-line" style="width:86%"></span></td><td><span class="dash-skeleton-line" style="width:58%"></span></td><td><span class="dash-skeleton-line" style="width:46%"></span></td><td><span class="dash-skeleton-line" style="width:78%"></span></td><td><span class="dash-skeleton-line" style="width:68%"></span></td></tr>
+                            <tr class="dash-skeleton-row" aria-hidden="true"><td class="dash-check-col"><span class="dash-skeleton-box"></span></td><td><span class="dash-skeleton-line" style="width:74%"></span></td><td><span class="dash-skeleton-line" style="width:38%"></span></td><td><span class="dash-skeleton-line" style="width:86%"></span></td><td><span class="dash-skeleton-line" style="width:58%"></span></td><td><span class="dash-skeleton-line" style="width:46%"></span></td><td><span class="dash-skeleton-line" style="width:78%"></span></td><td><span class="dash-skeleton-line" style="width:68%"></span></td></tr>
+                            <tr class="dash-skeleton-row" aria-hidden="true"><td class="dash-check-col"><span class="dash-skeleton-box"></span></td><td><span class="dash-skeleton-line" style="width:74%"></span></td><td><span class="dash-skeleton-line" style="width:38%"></span></td><td><span class="dash-skeleton-line" style="width:86%"></span></td><td><span class="dash-skeleton-line" style="width:58%"></span></td><td><span class="dash-skeleton-line" style="width:46%"></span></td><td><span class="dash-skeleton-line" style="width:78%"></span></td><td><span class="dash-skeleton-line" style="width:68%"></span></td></tr>
+                            <tr class="dash-skeleton-row" aria-hidden="true"><td class="dash-check-col"><span class="dash-skeleton-box"></span></td><td><span class="dash-skeleton-line" style="width:74%"></span></td><td><span class="dash-skeleton-line" style="width:38%"></span></td><td><span class="dash-skeleton-line" style="width:86%"></span></td><td><span class="dash-skeleton-line" style="width:58%"></span></td><td><span class="dash-skeleton-line" style="width:46%"></span></td><td><span class="dash-skeleton-line" style="width:78%"></span></td><td><span class="dash-skeleton-line" style="width:68%"></span></td></tr>
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </section>
-
-        <!-- ═══ أولياء الأمور ═══ -->
-        <section class="dash-panel" id="panel-parents" data-panel="parents">
-            <div class="dash-page-head">
-                <h1>أولياء الأمور</h1>
-                <p>إدارة البيانات وربط الأبناء وإرسال التقارير</p>
+                <div class="dash-load-more" id="pending-load-more" hidden>
+                    <p class="dash-load-more-info" id="pending-load-info">معروض 10 من 100</p>
+                    <p class="dash-load-more-end" id="pending-load-end" hidden>تم عرض كل الطلبات</p>
+                    <div class="dash-load-sentinel" id="pending-load-sentinel" aria-hidden="true"></div>
+                </div>
             </div>
 
-            <div class="dash-card">
-                <div class="dash-card-head"><h3>إضافة / ربط ولي أمر</h3></div>
-                <form id="parent-form">
-                    <div class="dash-form-grid">
-                        <div class="dash-field">
-                            <label for="par-name">اسم ولي الأمر</label>
-                            <input class="dash-input" type="text" id="par-name" placeholder="الاسم الكامل" required>
-                        </div>
-                        <div class="dash-field">
-                            <label for="par-phone">رقم الجوال</label>
-                            <input class="dash-input" type="tel" id="par-phone" placeholder="05XXXXXXXX" required>
-                        </div>
-                        <div class="dash-field">
-                            <label for="par-child">ربط بالابن</label>
-                            <select class="dash-input" id="par-child" required>
-                                <option value="">اختر الطالب</option>
-                                <option>أحمد الزبير</option>
-                                <option>محمد العتيبي</option>
-                                <option>عبد الرحمن فيصل</option>
-                            </select>
-                        </div>
-                        <div class="dash-field">
-                            <label for="par-email">البريد الإلكتروني</label>
-                            <input class="dash-input" type="email" id="par-email" placeholder="example@email.com">
-                        </div>
-                    </div>
-                    <button type="submit" class="dash-btn dash-btn-primary">حفظ وربط</button>
-                </form>
-            </div>
-
-            <div class="dash-card dash-section-gap">
-                <div class="dash-card-head"><h3>قائمة أولياء الأمور</h3></div>
-                <div class="dash-table-wrap">
-                    <table class="dash-table">
+            <div class="dash-card dash-ads-view-panel" id="requests-view-archive" data-requests-panel="archive" hidden>
+                <div class="dash-card-head">
+                    <h3>أرشيف الطلاب المرفوضين</h3>
+                    <span class="dash-requests-count" id="archived-requests-count">0 مؤرشف</span>
+                </div>
+                <p style="margin:0 0 1rem;color:var(--dash-muted,#64748b);font-size:0.9rem;">يُحذف تلقائياً بعد 30 يوماً من تاريخ الرفض.</p>
+                <div class="dash-bulk-bar" id="archive-bulk-bar" hidden>
+                    <span class="dash-bulk-count" id="archive-selected-count">0 محدد</span>
+                    <button type="button" class="dash-btn dash-btn-sm dash-btn-outline" data-bulk-archive="restore">إرجاع المحدد</button>
+                    <button type="button" class="dash-btn dash-btn-sm dash-btn-reject" data-bulk-archive="delete">حذف نهائي للمحدد</button>
+                </div>
+                <div class="dash-table-wrap dash-requests-table-wrap">
+                    <table class="dash-table dash-requests-table">
                         <thead>
                             <tr>
-                                <th>ولي الأمر</th>
-                                <th>الجوال</th>
-                                <th>الابن المرتبط</th>
-                                <th>إجراء</th>
+                                <th class="dash-check-col">
+                                    <input type="checkbox" id="archive-select-all" class="dash-row-check" aria-label="تحديد المعروض">
+                                </th>
+                                <th>اسم الطالب</th>
+                                <th>العمر</th>
+                                <th>مستوى الحفظ</th>
+                                <th>رقم الهاتف</th>
+                                <th>تاريخ الرفض</th>
+                                <th>يُحذف في</th>
+                                <th>إجراءات</th>
                             </tr>
                         </thead>
-                        <tbody id="parents-table">
-                            <tr>
-                                <td>عبد الله الزبير</td>
-                                <td dir="ltr">0512345678</td>
-                                <td>أحمد الزبير</td>
-                                <td><button type="button" class="dash-btn dash-btn-sm dash-btn-outline send-report-btn">إرسال تقرير</button></td>
-                            </tr>
-                            <tr>
-                                <td>سعد العتيبي</td>
-                                <td dir="ltr">0598765432</td>
-                                <td>محمد العتيبي</td>
-                                <td><button type="button" class="dash-btn dash-btn-sm dash-btn-outline send-report-btn">إرسال تقرير</button></td>
-                            </tr>
+                        <tbody id="archived-requests-table-body">
+                            <tr class="dash-table-empty"><td colspan="8">لا يوجد طلاب في الأرشيف.</td></tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="dash-load-more" id="archive-load-more" hidden>
+                    <p class="dash-load-more-info" id="archive-load-info">معروض 10 من 100</p>
+                    <p class="dash-load-more-end" id="archive-load-end" hidden>تم عرض كل الطلبات</p>
+                    <div class="dash-load-sentinel" id="archive-load-sentinel" aria-hidden="true"></div>
                 </div>
             </div>
         </section>
 
-        <!-- ═══ المدرسون ═══ -->
+        <!-- ═══ الضيوف وأولياء الأمور ═══ -->
+        <section class="dash-panel" id="panel-parents" data-panel="parents">
+            <div class="dash-page-head">
+                <h1>الضيوف وأولياء الأمور</h1>
+                <p>طلبات الانضمام كضيف — بدون كود أكاديمي — للمتابعة والاطلاع على الأبناء</p>
+            </div>
+
+            <div class="dash-subtabs" role="tablist">
+                <button type="button" class="dash-subtab is-active" data-guest-view="pending">طلبات جديدة <span class="dash-subtab-count" id="guest-pending-count">0</span></button>
+                <button type="button" class="dash-subtab" data-guest-view="approved">المعتمدون</button>
+            </div>
+
+            <div class="dash-guest-view" id="guest-view-pending">
+                <div class="dash-card">
+                    <div class="dash-card-head"><h3>طلبات بانتظار الموافقة</h3></div>
+                    <div class="dash-table-wrap">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>ولي الأمر</th>
+                                    <th>البريد الإلكتروني</th>
+                                    <th>اسم الابن</th>
+                                    <th>كلمة السر</th>
+                                    <th>تاريخ التقديم</th>
+                                    <th>إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guest-requests-body">
+                                <tr class="dash-table-empty"><td colspan="6">لا توجد طلبات ضيوف جديدة.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dash-guest-view" id="guest-view-approved" hidden>
+                <div class="dash-card">
+                    <div class="dash-card-head"><h3>الضيوف وأولياء الأمور المعتمدون</h3></div>
+                    <p class="dash-panel-note">لا يوجد كود أكاديمي — الدخول بالبريد الإلكتروني وكلمة السر فقط.</p>
+                    <div class="dash-table-wrap">
+                        <table class="dash-table">
+                            <thead>
+                                <tr>
+                                    <th>ولي الأمر</th>
+                                    <th>البريد الإلكتروني</th>
+                                    <th>الابن المرتبط</th>
+                                    <th>كلمة السر</th>
+                                    <th>تاريخ القبول</th>
+                                    <th>إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guest-approved-body">
+                                <tr class="dash-table-empty"><td colspan="6">لا يوجد ضيوف معتمدون بعد.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ المدرسين ═══ -->
         <section class="dash-panel" id="panel-teachers" data-panel="teachers">
             <div class="dash-page-head">
                 <h1>إدارة المدرسين</h1>
-                <p>إضافة حسابات المدرسين وتحديد الحلقات التي يمكنهم إدارتها</p>
+                <p>حسابات المدرسين المعتمدين وتحديد الحلقات التي يديرونها</p>
             </div>
 
             <div class="dash-card">
@@ -434,7 +557,7 @@
             </div>
 
             <div class="dash-card dash-section-gap">
-                <div class="dash-card-head"><h3>المدرسون المعتمدون</h3></div>
+                <div class="dash-card-head"><h3>المدرسين المعتمدين</h3></div>
                 <div class="dash-table-wrap">
                     <table class="dash-table">
                         <thead>
@@ -505,94 +628,185 @@
 
         <!-- ═══ إدارة الإعلانات ═══ -->
         <section class="dash-panel" id="panel-ads" data-panel="ads">
-            <div class="dash-page-head dash-page-head-row">
-                <div>
-                    <h1>إدارة الإعلانات</h1>
-                    <p>تحكم في البانر البانورامي للشاشة الرئيسية — إظهار، إخفاء، أرشفة، ومظهر زجاجي</p>
-                </div>
-                <button type="button" class="dash-btn dash-btn-primary" id="ads-add-btn">+ إضافة إعلان جديد</button>
+            <div class="dash-page-head">
+                <h1>إدارة الإعلانات</h1>
+                <p>اختر أولاً نوع الإعلان الذي تريد تعديله</p>
             </div>
 
-            <div class="dash-card dash-ad-appearance-card">
-                <div class="dash-card-head">
-                    <h3>مظهر البانر الزجاجي</h3>
-                    <span class="dash-requests-count">Glass Overlay</span>
+            <div class="dash-ads-type-picker" role="tablist" aria-label="اختيار نوع الإعلان">
+                <button type="button" class="dash-ads-type-card" data-ads-type="topbar" role="tab" aria-selected="false">
+                    <span class="dash-ads-type-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="6" width="20" height="4" rx="1.5"/>
+                            <path d="M6 10v2M10 10v2M14 10v2M18 10v2"/>
+                            <path d="M4 16h16"/>
+                        </svg>
+                    </span>
+                    <strong class="dash-ads-type-label">شريط الإعلانات</strong>
+                    <span class="dash-ads-type-desc">الشريط الأخضر المتحرك أعلى الموقع</span>
+                </button>
+                <button type="button" class="dash-ads-type-card is-active" data-ads-type="banner" role="tab" aria-selected="true">
+                    <span class="dash-ads-type-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="5" width="18" height="14" rx="2"/>
+                            <circle cx="8.5" cy="10.5" r="1.5"/>
+                            <path d="m21 15-5-5L5 21"/>
+                        </svg>
+                    </span>
+                    <strong class="dash-ads-type-label">قالب الصورة</strong>
+                    <span class="dash-ads-type-desc">البانر البانورامي والتصميم الزجاجي</span>
+                </button>
+            </div>
+
+            <div class="dash-ads-section" id="ads-section-topbar" data-ads-section="topbar" hidden>
+                <div class="dash-card" id="topbar-ads-card">
+                    <div class="dash-card-head">
+                        <h3>شريط الإعلانات العلوي المتحرك</h3>
+                        <span class="dash-requests-count">3 إعلانات كحد أقصى · 100 حرف لكل إعلان</span>
+                    </div>
+                    <p class="dash-modal-hint" style="margin:0 0 16px;">يظهر في الشريط الأخضر أعلى الصفحة الرئيسية. يمكن للزائر إغلاقه — المحتوى يُحدَّث من هنا.</p>
+                    <form id="topbar-ads-form">
+                        <div class="dash-topbar-ads-list" id="topbar-ads-fields"></div>
+                        <div class="dash-topbar-ads-actions">
+                            <button type="submit" class="dash-btn dash-btn-primary">حفظ شريط الإعلانات</button>
+                            <p class="dash-modal-error" id="topbar-ads-error" hidden></p>
+                        </div>
+                    </form>
+                    <div class="dash-topbar-preview-wrap">
+                        <span class="dash-topbar-preview-label">معاينة الشريط</span>
+                        <div class="dash-topbar-preview" id="topbar-ads-preview" aria-hidden="true"></div>
+                    </div>
                 </div>
-                <div class="dash-ad-appearance-grid">
-                    <div class="dash-field">
-                        <label for="overlay-blur-range">الضبابية (Blur): <strong id="overlay-blur-val">15px</strong></label>
-                        <input class="dash-range" type="range" id="overlay-blur-range" min="0" max="40" step="1" value="15">
+            </div>
+
+            <div class="dash-ads-section is-active" id="ads-section-banner" data-ads-section="banner">
+                <div class="dash-ads-section-head">
+                    <div>
+                        <h2>قالب الصورة البانورامية</h2>
+                        <p>إدارة صور الإعلانات ومظهر البانر الزجاجي</p>
                     </div>
-                    <div class="dash-field">
-                        <label for="overlay-height-range">ارتفاع التدرج: <strong id="overlay-height-val">30%</strong></label>
-                        <input class="dash-range" type="range" id="overlay-height-range" min="10" max="70" step="1" value="30">
-                    </div>
-                    <div class="dash-field">
-                        <label for="overlay-edge-range">تنعيم الحافة العلوية: <strong id="overlay-edge-val">20%</strong></label>
-                        <input class="dash-range" type="range" id="overlay-edge-range" min="0" max="100" step="1" value="20">
-                    </div>
-                    <div class="dash-field">
-                        <label for="overlay-color-select">لون التأثير الزجاجي</label>
-                        <select class="dash-input" id="overlay-color-select">
-                            <option value="white">أبيض زجاجي شفاف</option>
-                            <option value="emerald">زمردي داكن (هوية الموقع)</option>
+                </div>
+
+                <div class="dash-card dash-glass-card">
+                    <div class="dash-card-head dash-card-head-row">
+                        <h3>مظهر البانر</h3>
+                        <div class="dash-glass-theme-tabs" role="radiogroup" aria-label="لون التأثير الزجاجي">
+                            <button type="button" class="dash-glass-theme-tab is-active" data-overlay-theme="white" role="radio" aria-checked="true">أبيض</button>
+                            <button type="button" class="dash-glass-theme-tab" data-overlay-theme="black" role="radio" aria-checked="false">أسود</button>
+                            <button type="button" class="dash-glass-theme-tab" data-overlay-theme="salla" role="radio" aria-checked="false">سلة</button>
+                        </div>
+                        <select class="dash-input" id="overlay-color-select" hidden aria-hidden="true" tabindex="-1">
+                            <option value="white">أبيض</option>
+                            <option value="black">أسود</option>
+                            <option value="salla">سلة</option>
                         </select>
                     </div>
+                    <div class="dash-ad-glass-preview" id="dash-ad-glass-preview" aria-label="معاينة البانر">
+                        <img class="dash-ad-glass-preview-img" id="dash-ad-glass-preview-img" src="assets/glass-preview-halaqa.png" alt="أطفال في حلقة تحفيظ بالمسجد">
+                        <div class="dash-ad-glass-blur-mask" aria-hidden="true">
+                            <img class="dash-ad-glass-blur-img" id="dash-ad-glass-blur-img" src="assets/glass-preview-halaqa.png" alt="">
+                        </div>
+                        <div class="dash-ad-glass-overlay"></div>
+                    </div>
+                    <div class="dash-glass-controls">
+                        <div class="dash-glass-control">
+                            <div class="dash-glass-control-head">
+                                <span>الضبابية</span>
+                                <strong id="overlay-blur-val">15px</strong>
+                            </div>
+                            <input class="dash-range" type="range" id="overlay-blur-range" min="0" max="25" step="1" value="15" aria-label="الضبابية">
+                        </div>
+                        <div class="dash-glass-control">
+                            <div class="dash-glass-control-head">
+                                <span>ارتفاع التدرج</span>
+                                <strong id="overlay-height-val">30%</strong>
+                            </div>
+                            <input class="dash-range" type="range" id="overlay-height-range" min="10" max="70" step="1" value="30" aria-label="ارتفاع التدرج">
+                        </div>
+                        <div class="dash-glass-control">
+                            <div class="dash-glass-control-head">
+                                <span>تنعيم الحافة</span>
+                                <strong id="overlay-edge-val">20%</strong>
+                            </div>
+                            <input class="dash-range" type="range" id="overlay-edge-range" min="0" max="100" step="1" value="20" aria-label="تنعيم الحافة">
+                        </div>
+                        <div class="dash-glass-control">
+                            <div class="dash-glass-control-head">
+                                <span>قوة اللون</span>
+                                <strong id="overlay-strength-val">70%</strong>
+                            </div>
+                            <input class="dash-range" type="range" id="overlay-strength-range" min="0" max="100" step="1" value="70" aria-label="قوة اللون">
+                        </div>
+                    </div>
                 </div>
-                <div class="dash-ad-glass-preview" id="dash-ad-glass-preview" aria-hidden="true">
-                    <div class="dash-ad-glass-preview-media"></div>
-                    <div class="dash-ad-glass-overlay"></div>
-                    <div class="dash-ad-glass-preview-label">معاينة التدرج الزجاجي</div>
-                </div>
-            </div>
 
-            <div class="dash-ads-subtabs" role="tablist" aria-label="تبويبات الإعلانات">
-                <button type="button" class="dash-ads-subtab is-active" data-ads-view="active" role="tab" aria-selected="true">الإعلانات النشطة</button>
-                <button type="button" class="dash-ads-subtab" data-ads-view="archive" role="tab" aria-selected="false">الأرشيف</button>
-            </div>
+                <div class="dash-ads-toolbar">
+                    <div class="dash-ads-subtabs" role="tablist" aria-label="تبويبات الإعلانات">
+                        <button type="button" class="dash-ads-subtab is-active" data-ads-view="active" role="tab" aria-selected="true">الإعلانات النشطة</button>
+                        <button type="button" class="dash-btn dash-btn-primary dash-btn-sm" id="ads-add-btn">+ إضافة إعلان بانورامي</button>
+                        <button type="button" class="dash-ads-subtab dash-ads-subtab-icon" data-ads-view="archive" role="tab" aria-selected="false" aria-label="الأرشيف" title="الأرشيف">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                        </button>
+                    </div>
+                </div>
 
-            <div class="dash-card dash-ads-view-panel is-active" id="ads-view-active" data-ads-panel="active">
-                <div class="dash-card-head">
-                    <h3>الإعلانات الحالية</h3>
-                    <span class="dash-requests-count" id="ads-active-count">0 نشط</span>
+                <div class="dash-card dash-ads-view-panel is-active" id="ads-view-active" data-ads-panel="active">
+                    <div class="dash-card-head dash-ads-card-head">
+                        <h3>الإعلانات الحالية</h3>
+                        <div class="dash-ads-head-meta">
+                            <button type="button" class="dash-icon-btn dash-icon-btn-danger" id="ads-bulk-delete-btn" data-bulk-ads="archive" hidden aria-label="حذف المحدد">
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                            </button>
+                            <span class="dash-requests-count" id="ads-active-count">0 نشط</span>
+                        </div>
+                    </div>
+                    <div class="dash-bulk-bar" id="ads-bulk-bar" hidden>
+                        <span class="dash-bulk-count" id="ads-selected-count">0 محدد</span>
+                        <button type="button" class="dash-btn dash-btn-sm dash-btn-toggle-ad" data-bulk-ads="show">إظهار المحدد</button>
+                        <button type="button" class="dash-btn dash-btn-sm dash-btn-outline" data-bulk-ads="hide">إخفاء المحدد</button>
+                    </div>
+                    <div class="dash-table-wrap dash-ads-table-wrap">
+                        <table class="dash-table dash-ads-table">
+                            <thead>
+                                <tr>
+                                    <th class="dash-check-col">
+                                        <input type="checkbox" id="ads-select-all" class="dash-row-check" aria-label="تحديد الكل">
+                                    </th>
+                                    <th class="dash-order-col">ترتيب العرض</th>
+                                    <th>اسم الإعلان</th>
+                                    <th>الصورة المصغرة</th>
+                                    <th>الرابط</th>
+                                    <th>حالة العرض</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ads-table-body">
+                                <tr class="dash-table-empty"><td colspan="7">لا توجد إعلانات بعد.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div class="dash-table-wrap dash-ads-table-wrap">
-                    <table class="dash-table dash-ads-table">
-                        <thead>
-                            <tr>
-                                <th>اسم الإعلان</th>
-                                <th>الصورة المصغرة</th>
-                                <th>الرابط</th>
-                                <th>حالة العرض</th>
-                                <th>إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ads-table-body">
-                            <tr class="dash-table-empty"><td colspan="5">لا توجد إعلانات بعد.</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
-            <div class="dash-card dash-ads-view-panel" id="ads-view-archive" data-ads-panel="archive" hidden>
-                <div class="dash-card-head">
-                    <h3>الأرشيف</h3>
-                    <span class="dash-requests-count" id="ads-archive-count">0 مؤرشف</span>
-                </div>
-                <div class="dash-table-wrap dash-ads-table-wrap">
-                    <table class="dash-table dash-ads-table">
-                        <thead>
-                            <tr>
-                                <th>اسم الإعلان</th>
-                                <th>الصورة المصغرة</th>
-                                <th>تاريخ الأرشفة</th>
-                                <th>إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ads-archive-body">
-                            <tr class="dash-table-empty"><td colspan="4">لا توجد إعلانات مؤرشفة.</td></tr>
-                        </tbody>
-                    </table>
+                <div class="dash-card dash-ads-view-panel" id="ads-view-archive" data-ads-panel="archive" hidden>
+                    <div class="dash-card-head">
+                        <h3>الأرشيف</h3>
+                        <span class="dash-requests-count" id="ads-archive-count">0 مؤرشف</span>
+                    </div>
+                    <div class="dash-table-wrap dash-ads-table-wrap">
+                        <table class="dash-table dash-ads-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم الإعلان</th>
+                                    <th>الصورة المصغرة</th>
+                                    <th>تاريخ الأرشفة</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ads-archive-body">
+                                <tr class="dash-table-empty"><td colspan="4">لا توجد إعلانات مؤرشفة.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </section>
@@ -664,6 +878,8 @@
 <div class="dash-toast" id="dash-toast" role="status" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="dashboard.js"></script>
+<script src="banner-store.js"></script>
+<script src="dashboard.js?v=20260612o"></script>
+<script src="guest-parent-panel.js?v=20260612j"></script>
 </body>
 </html>

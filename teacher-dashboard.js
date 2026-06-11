@@ -493,6 +493,7 @@ function initSurahControls() {
 
 document.addEventListener('DOMContentLoaded', () => {
     if (!requireTeacherAuth()) return;
+    initUiZoomControls();
     initSurahControls();
     renderAll();
     initRecitationForm();

@@ -7,35 +7,34 @@
 /* -----------------------------------------------------------------------
    الثوابت والبيانات
    ----------------------------------------------------------------------- */
-const PRAYERS = [
-    { name: 'صلاة الفجر',   time: '04:15' },
-    { name: 'شروق الشمس',  time: '05:35' },
-    { name: 'صلاة الظهر',  time: '12:20' },
-    { name: 'صلاة العصر',  time: '15:40' },
-    { name: 'صلاة المغرب', time: '18:50' },
-    { name: 'صلاة العشاء', time: '20:20' },
+const TOP_BAR_ADS_KEY = 'qmza_top_bar_ads';
+const TOP_BAR_ADS_MAX = 3;
+const TOP_BAR_TEXT_MAX = 100;
+const TOP_BAR_TAG_MAX = 12;
+
+const DEFAULT_TOP_BAR_ADS = [
+    { tag: 'جديد', text: 'بدء التسجيل في الدورة القرآنية الصيفية المكثفة.' },
+    { tag: 'تكريم', text: 'تكريم الطلاب المتميزين يوم الخميس بعد صلاة العصر.' },
+    { tag: 'رحلة', text: 'رحلة ترفيهية للطلاب الملتزمين يوم السبت القادم.' }
 ];
 
-const ANNOUNCEMENTS = [
-    {
-        tag: 'جديد',
-        short: 'بدء التسجيل في الدورة القرآنية الصيفية المكثفة.',
-        date: '9 يونيو 2026',
-        detail: 'تعلن إدارة الحلقات بمجمع الزبير ابن العوام عن بدء التسجيل في دورة حفظ وتجويد القرآن الكريم خلال الفترة الصيفية. الدورة تشمل حفظ المراجعة وحفظ الجديد مع جوائز قيّمة للخاتمين والمتميزين.'
-    },
-    {
-        tag: 'تكريم',
-        short: 'تكريم الطلاب المتميزين يوم الخميس بعد صلاة العصر.',
-        date: '8 يونيو 2026',
-        detail: 'يسر الإدارة دعوة أولياء الأمور الكرام لحضور حفل تكريم الطلاب المتميزين الذين حققوا درجات كاملة في اختبارات الأجزاء لهذا الفصل الدراسي.'
-    },
-    {
-        tag: 'رحلة',
-        short: 'رحلة ترفيهية للطلاب الملتزمين يوم السبت القادم.',
-        date: '5 يونيو 2026',
-        detail: 'رحلة ترفيهية ثقافية لجميع الطلاب الملتزمين بالحضور والواجبات اليومية، تتضمن أنشطة رياضية ومسابقات ثقافية ووجبة غداء جماعية.'
-    },
-];
+const TOP_BAR_DISMISSED_KEY = 'qmza_top_bar_dismissed';
+
+function getTopBarAds() {
+    try {
+        const raw = JSON.parse(localStorage.getItem(TOP_BAR_ADS_KEY) || 'null');
+        if (Array.isArray(raw) && raw.length) {
+            return raw
+                .slice(0, TOP_BAR_ADS_MAX)
+                .map((ad) => ({
+                    tag: String(ad?.tag ?? '').trim().slice(0, TOP_BAR_TAG_MAX) || 'إعلان',
+                    text: String(ad?.text ?? '').trim().slice(0, TOP_BAR_TEXT_MAX)
+                }))
+                .filter((ad) => ad.text);
+        }
+    } catch { /* ignore */ }
+    return DEFAULT_TOP_BAR_ADS.map((ad) => ({ ...ad }));
+}
 
 const DEFAULT_AVATAR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23e2f7f3'/%3E%3Ccircle cx='50' cy='38' r='18' fill='%23004d5a'/%3E%3Cellipse cx='50' cy='82' rx='28' ry='22' fill='%23004d5a'/%3E%3C/svg%3E";
 
@@ -145,18 +144,14 @@ function showView(viewId) {
         }
     });
 
-    const isLogin = viewId === 'login-view';
-    const joinTab = document.getElementById('go-join-btn');
-    const loginTab = document.getElementById('go-login-tab');
-    joinTab?.classList.toggle('auth-tab-active', !isLogin);
-    joinTab?.classList.toggle('auth-tab-outline', isLogin);
-    loginTab?.classList.toggle('auth-tab-active', isLogin);
-    loginTab?.classList.toggle('auth-tab-outline', !isLogin);
-
     mountMascotToView(viewId);
     updateMascotPose();
     resetMascotPeek();
     setMascotSpeech(null);
+
+    if (viewId === 'register-view') {
+        resetRegisterWizard(true);
+    }
 }
 
 function scrollToJoinRegister() {
@@ -211,7 +206,14 @@ const MASCOT_SPEECH = {
     passPeekConfirm: 'كفو، تأكدت من كلمة السر؟ الحين وضعك في السليم! 👍🔥',
     emptySubmit: 'أفا! نسيت تعبئة البيانات؟ عبّها وبانتظارك يا ذكي! 📄🚀',
     loginNotFound: 'هذا الحساب غير موجود هل انت متاكد من كلمة السر والكود ؟ او قم بأنشاء حساب اذ لم تنشى',
-    joinSuccess: 'تم إرسال طلبك بنجاح يا بطل! انتظر موافقة المشرف 🥳🎉'
+    joinSuccess: 'تم إرسال طلبك بنجاح يا بطل! انتظر موافقة المشرف 🥳🎉',
+    emailFocus: 'أدخل بريدك الإلكتروني بشكل صحيح 📧',
+    emailMissingAt: 'البريد لازم يحتوي على @!',
+    emailBadDomain: 'تأكد من النطاق، مثل example@mail.com',
+    emailBadFormat: 'البريد: أحرف إنجليزية وأرقام فقط',
+    emailTooShort: 'البريد قصير! 6 خانات على الأقل',
+    emailValid: 'تمام! البريد يبدو صحيحاً ✅',
+    emailNotFound: 'البريد أو كلمة السر غير صحيحة، أو لم تُقبل طلبك بعد'
 };
 
 const MASCOT_SPEECH_ERROR_MODES = new Set([
@@ -223,9 +225,14 @@ const MASCOT_SPEECH_ERROR_MODES = new Set([
     'passArabic',
     'passSymbol',
     'emptySubmit',
-    'loginNotFound'
+    'loginNotFound',
+    'emailMissingAt',
+    'emailBadDomain',
+    'emailBadFormat',
+    'emailTooShort',
+    'emailNotFound'
 ]);
-const MASCOT_SPEECH_SUCCESS_MODES = new Set(['passLower', 'passValid', 'passPeekConfirm', 'joinSuccess']);
+const MASCOT_SPEECH_SUCCESS_MODES = new Set(['passLower', 'passValid', 'passPeekConfirm', 'joinSuccess', 'emailValid']);
 
 function isMascotPeekMode() {
     const loginView = document.getElementById('login-view');
@@ -632,6 +639,8 @@ function refreshMascotSpeechFromFocus() {
         return;
     } else if (active?.id === 'login-pass' || active?.id === 'reg-pass') {
         syncMascotPasswordSpeech(active.id, {});
+    } else if (active?.id === 'guest-login-email' && typeof window.syncMascotGuestEmailSpeech === 'function') {
+        window.syncMascotGuestEmailSpeech('guest-login-email');
     } else {
         setMascotSpeech(null);
     }
@@ -1040,11 +1049,15 @@ function getPasswordErrorId(inputId) {
 }
 
 function getPasswordWrapId(inputId) {
-    return inputId === 'login-pass' ? 'login-pass-wrap' : 'reg-pass-wrap';
+    if (inputId === 'login-pass') return 'login-pass-wrap';
+    if (inputId === 'guest-pass') return 'guest-pass-wrap';
+    return 'reg-pass-wrap';
 }
 
 function getPasswordRulesId(inputId) {
-    return inputId === 'login-pass' ? 'rules-login-pass' : 'rules-reg-pass';
+    if (inputId === 'login-pass') return 'rules-login-pass';
+    if (inputId === 'guest-pass') return 'rules-guest-pass';
+    return 'rules-reg-pass';
 }
 
 function getPasswordToggleId(inputId) {
@@ -1485,6 +1498,10 @@ function validateRegisterForm() {
     if (!phoneOk) { showError('err-reg-phone', true); ok = false; }
     else { showError('err-reg-phone', false); }
 
+    const memorization = document.getElementById('reg-memorization')?.value ?? '';
+    if (!memorization) { showError('err-reg-memorization', true); ok = false; }
+    else { showError('err-reg-memorization', false); }
+
     if (!isValidPassword(pass)) {
         showError('err-reg-pass', true);
         updatePasswordRules('reg-pass', true);
@@ -1495,6 +1512,222 @@ function validateRegisterForm() {
     }
 
     return ok;
+}
+
+const REG_WIZARD_TOTAL = 5;
+const REG_WIZARD_LABELS = ['الاسم', 'العمر', 'الهاتف', 'مستوى الحفظ', 'كلمة السر'];
+let regWizardStep = 1;
+
+function validateRegWizardStep(step) {
+    if (step === 1) {
+        const name = sanitize(document.getElementById('reg-name')?.value ?? '');
+        const arabicWords = name.split(/\s+/).filter((w) => /^[\u0600-\u06FF]+$/.test(w));
+        const ok = name.length >= 10 && arabicWords.length >= 4;
+        showError('err-reg-name', !ok);
+        if (!ok) showToast('أدخل اسماً رباعياً كاملاً بالعربية.', 'error');
+        return ok;
+    }
+    if (step === 2) {
+        const age = parseInt(document.getElementById('reg-age')?.value ?? '', 10);
+        const ok = Number.isFinite(age) && age >= 5 && age <= 25;
+        showError('err-reg-age', !ok);
+        if (!ok) showToast('أدخل عمراً صحيحاً بين 5 و 25 سنة.', 'error');
+        return ok;
+    }
+    if (step === 3) {
+        const phone = sanitize(document.getElementById('reg-phone')?.value.trim() ?? '');
+        const intl = isPhoneIntlMode();
+        setPhoneErrorMessage(intl);
+        const ok = intl
+            ? isInternationalPhone(phone, getCountryCodeValue())
+            : isYemeniPhone(phone);
+        showError('err-reg-phone', !ok);
+        if (!ok) {
+            showToast(intl ? 'تحقق من رمز الدولة ورقم الهاتف الدولي.' : 'أدخل رقم يمني صحيح: 9 أرقام ويبدأ بـ 7.', 'error');
+        }
+        return ok;
+    }
+    if (step === 4) {
+        const memorization = document.getElementById('reg-memorization')?.value ?? '';
+        const ok = Boolean(memorization);
+        showError('err-reg-memorization', !ok);
+        if (!ok) showToast('يرجى اختيار مستوى الحفظ.', 'error');
+        return ok;
+    }
+    if (step === 5) {
+        const pass = document.getElementById('reg-pass')?.value ?? '';
+        const ok = isValidPassword(pass);
+        showError('err-reg-pass', !ok);
+        updatePasswordRules('reg-pass', !ok);
+        if (!ok) showToast('كلمة السر: 8 خانات، أحرف صغيرة إنجليزية وأرقام فقط.', 'error');
+        return ok;
+    }
+    return true;
+}
+
+function updateRegWizardProgress(step) {
+    const fill = document.getElementById('reg-progress-fill');
+    const label = document.getElementById('reg-step-label');
+    const pct = Math.round(((step - 1) / REG_WIZARD_TOTAL) * 100);
+    if (fill) fill.style.width = `${pct}%`;
+    if (label) {
+        label.textContent = step <= REG_WIZARD_TOTAL
+            ? `الخطوة ${step} من ${REG_WIZARD_TOTAL} — ${REG_WIZARD_LABELS[step - 1]}`
+            : 'اكتمل التسجيل بنجاح!';
+    }
+}
+
+function focusRegWizardStepInput(step) {
+    const map = {
+        1: '#reg-name',
+        2: '#reg-age',
+        3: '#reg-phone',
+        4: '#reg-memorization',
+        5: '#reg-pass'
+    };
+    const el = document.querySelector(map[step]);
+    if (el) setTimeout(() => el.focus(), 80);
+}
+
+function showRegWizardStep(step, focusInput = true) {
+    regWizardStep = Math.max(1, Math.min(REG_WIZARD_TOTAL, step));
+    document.querySelectorAll('.reg-wizard-step').forEach((panel) => {
+        const n = Number(panel.dataset.step);
+        panel.hidden = n !== regWizardStep;
+        panel.classList.toggle('is-active', n === regWizardStep);
+    });
+
+    updateRegWizardProgress(regWizardStep);
+
+    const backBtn = document.getElementById('reg-wizard-back');
+    const nextBtn = document.getElementById('reg-wizard-next');
+    const submitBtn = document.getElementById('register-submit-btn');
+    const nav = document.getElementById('reg-wizard-nav');
+    backBtn?.toggleAttribute('hidden', regWizardStep === 1);
+    nextBtn?.toggleAttribute('hidden', regWizardStep === REG_WIZARD_TOTAL);
+    submitBtn?.toggleAttribute('hidden', regWizardStep !== REG_WIZARD_TOTAL);
+    nav?.classList.toggle('reg-wizard-nav--single', regWizardStep === 1);
+
+    if (focusInput) focusRegWizardStepInput(regWizardStep);
+}
+
+function goRegWizardNext() {
+    if (!validateRegWizardStep(regWizardStep)) return;
+    if (regWizardStep < REG_WIZARD_TOTAL) showRegWizardStep(regWizardStep + 1);
+}
+
+function goRegWizardBack() {
+    if (regWizardStep > 1) showRegWizardStep(regWizardStep - 1);
+}
+
+function clearRegSuccessBubbles() {
+    document.getElementById('reg-success-bubbles')?.replaceChildren();
+    document.getElementById('reg-success-confetti')?.replaceChildren();
+    document.getElementById('reg-success-sparkles')?.replaceChildren();
+}
+
+function spawnRegSuccessBubbles() {
+    const container = document.getElementById('reg-success-bubbles');
+    if (!container) return;
+    for (let i = 0; i < 90; i += 1) {
+        const bubble = document.createElement('span');
+        bubble.className = 'reg-bubble';
+        const size = 6 + Math.random() * 28;
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${Math.random() * 100}%`;
+        bubble.style.animationDuration = `${4 + Math.random() * 4.5}s`;
+        bubble.style.animationDelay = `${Math.random() * 4}s`;
+        container.appendChild(bubble);
+    }
+}
+
+function spawnRegSuccessConfetti() {
+    const container = document.getElementById('reg-success-confetti');
+    if (!container) return;
+    const colors = ['#004d5a', '#a7ebd8', '#ffffff', '#6dd4b8', '#ffd166', '#ff6b6b', '#3db89a'];
+    for (let i = 0; i < 85; i += 1) {
+        const piece = document.createElement('span');
+        piece.className = 'reg-confetti-piece';
+        const w = 4 + Math.random() * 9;
+        const h = 4 + Math.random() * 12;
+        piece.style.width = `${w}px`;
+        piece.style.height = `${h}px`;
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDuration = `${2.5 + Math.random() * 3.5}s`;
+        piece.style.animationDelay = `${Math.random() * 3}s`;
+        container.appendChild(piece);
+    }
+}
+
+function spawnRegSuccessSparkles() {
+    const container = document.getElementById('reg-success-sparkles');
+    if (!container) return;
+    const icons = ['✨', '🎉', '🎊', '⭐', '🌟', '💫'];
+    for (let i = 0; i < 36; i += 1) {
+        const spark = document.createElement('span');
+        spark.className = 'reg-sparkle';
+        spark.textContent = icons[Math.floor(Math.random() * icons.length)];
+        spark.style.left = `${Math.random() * 100}%`;
+        spark.style.top = `${Math.random() * 100}%`;
+        spark.style.fontSize = `${0.85 + Math.random() * 1.4}rem`;
+        spark.style.animationDuration = `${3.5 + Math.random() * 4}s`;
+        spark.style.animationDelay = `${Math.random() * 3}s`;
+        container.appendChild(spark);
+    }
+}
+
+function showRegisterSuccessScreen() {
+    const form = document.getElementById('register-form');
+    form?.classList.add('is-success');
+    document.getElementById('reg-wizard-body')?.setAttribute('hidden', '');
+    document.getElementById('reg-wizard-nav')?.setAttribute('hidden', '');
+    document.getElementById('reg-wizard-progress')?.setAttribute('hidden', '');
+    document.body.classList.add('reg-success-open');
+    document.getElementById('reg-success-screen')?.removeAttribute('hidden');
+    clearRegSuccessBubbles();
+    spawnRegSuccessBubbles();
+    spawnRegSuccessConfetti();
+    spawnRegSuccessSparkles();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetRegisterWizard(focusFirst = true) {
+    regWizardStep = 1;
+    clearRegSuccessBubbles();
+    document.body.classList.remove('reg-success-open');
+    document.getElementById('register-form')?.classList.remove('is-success');
+    document.getElementById('register-form')?.reset();
+    resetPhoneIntlMode();
+    resetPasswordField('reg-pass');
+    document.getElementById('reg-success-screen')?.setAttribute('hidden', '');
+    document.getElementById('reg-wizard-body')?.removeAttribute('hidden');
+    document.getElementById('reg-wizard-nav')?.removeAttribute('hidden');
+    document.getElementById('reg-wizard-progress')?.removeAttribute('hidden');
+    showRegWizardStep(1, focusFirst);
+}
+
+function initRegisterWizard() {
+    document.getElementById('reg-wizard-next')?.addEventListener('click', goRegWizardNext);
+    document.getElementById('reg-wizard-back')?.addEventListener('click', goRegWizardBack);
+
+    document.getElementById('reg-success-done')?.addEventListener('click', () => {
+        resetRegisterWizard(false);
+        showView('login-view');
+    });
+
+    document.querySelectorAll('.reg-wizard-step input, .reg-wizard-step select').forEach((input) => {
+        input.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter') return;
+            const step = Number(input.closest('.reg-wizard-step')?.dataset.step);
+            if (!step || step >= REG_WIZARD_TOTAL) return;
+            e.preventDefault();
+            goRegWizardNext();
+        });
+    });
+
+    showRegWizardStep(1, false);
 }
 
 function buildSubmittedLabel(date = new Date()) {
@@ -1508,6 +1741,28 @@ function buildSubmittedLabel(date = new Date()) {
     });
 }
 
+const REQUEST_META_SEP = ' || ';
+
+function buildSubmittedLabelWithMeta(data, date = new Date()) {
+    const label = buildSubmittedLabel(date);
+    const age = data.age ?? '';
+    const memorization = data.memorization ?? '';
+    return `${label}${REQUEST_META_SEP}${age}${REQUEST_META_SEP}${memorization}`;
+}
+
+const REQUEST_META_CACHE_KEY = 'qmza_request_meta_by_id';
+
+function cacheRequestMeta(id, data) {
+    try {
+        const map = JSON.parse(localStorage.getItem(REQUEST_META_CACHE_KEY) || '{}');
+        map[String(id)] = {
+            age: data.age ?? null,
+            memorization: data.memorization ?? ''
+        };
+        localStorage.setItem(REQUEST_META_CACHE_KEY, JSON.stringify(map));
+    } catch { /* ignore */ }
+}
+
 function saveNewStudentRequestLocal(data, submittedAt, submittedLabel) {
     try {
         const list = JSON.parse(localStorage.getItem('new_students_requests') || '[]');
@@ -1517,6 +1772,8 @@ function saveNewStudentRequestLocal(data, submittedAt, submittedLabel) {
             phone: data.phone,
             countryCode: data.countryCode,
             password: data.password ?? '',
+            age: data.age ?? null,
+            memorization: data.memorization ?? '',
             submittedAt: submittedAt.toISOString(),
             submittedLabel
         });
@@ -1527,122 +1784,110 @@ function saveNewStudentRequestLocal(data, submittedAt, submittedLabel) {
     }
 }
 
+function isSupabaseMissingColumnError(error) {
+    const code = String(error?.code || '');
+    const msg = String(error?.message || error?.details || '').toLowerCase();
+    return code === 'PGRST204' || msg.includes('column') || msg.includes('schema cache');
+}
+
 async function saveNewStudentRequest(data) {
     const now = new Date();
-    const submittedLabel = buildSubmittedLabel(now);
+    const displayLabel = buildSubmittedLabel(now);
+    const storageLabel = buildSubmittedLabelWithMeta(data, now);
 
     if (supabaseClient) {
-        const { error } = await supabaseClient
-            .from(SUPABASE_TABLE_NEW_REQUESTS)
-            .insert({
-                name: data.name,
-                phone: data.phone,
-                country_code: data.countryCode,
-                password: data.password ?? '',
-                submitted_label: submittedLabel
-            });
+        const basePayload = {
+            name: data.name,
+            phone: data.phone,
+            country_code: data.countryCode,
+            password: data.password ?? '',
+            submitted_label: storageLabel
+        };
+        const fullPayload = {
+            ...basePayload,
+            age: data.age ?? null,
+            memorization: data.memorization || null
+        };
 
-        if (!error) return { ok: true, source: 'supabase' };
-        console.error('Supabase request insert failed:', error);
+        let { data: inserted, error } = await supabaseClient
+            .from(SUPABASE_TABLE_NEW_REQUESTS)
+            .insert(fullPayload)
+            .select('id')
+            .single();
+
+        if (error && isSupabaseMissingColumnError(error)) {
+            ({ data: inserted, error } = await supabaseClient
+                .from(SUPABASE_TABLE_NEW_REQUESTS)
+                .insert(basePayload)
+                .select('id')
+                .single());
+        }
+
+        if (!error && inserted?.id != null) {
+            cacheRequestMeta(inserted.id, data);
+            return { ok: true, source: 'supabase' };
+        }
+        if (error) console.error('Supabase request insert failed:', error);
     }
 
-    const savedLocally = saveNewStudentRequestLocal(data, now, submittedLabel);
+    const savedLocally = saveNewStudentRequestLocal(data, now, displayLabel);
     return savedLocally
         ? { ok: true, source: 'local' }
         : { ok: false, source: 'none' };
 }
 
 /* -----------------------------------------------------------------------
-   مواقيت الصلاة الحية
+   شريط الإعلانات العلوي المتحرك
    ----------------------------------------------------------------------- */
-function getPrayerCountdown() {
-    const now  = new Date();
-    let nearest = null;
-    let minDiff = Infinity;
+function buildTopBarMarqueeItems(ads = getTopBarAds()) {
+    return ads.map((ad) => `
+        <span class="top-bar-marquee-item">
+            <span class="top-bar-marquee-badge">${sanitize(ad.tag)}</span>
+            <span class="top-bar-marquee-text">${sanitize(ad.text)}</span>
+        </span>`).join('<span class="top-bar-marquee-sep" aria-hidden="true">◆</span>');
+}
 
-    PRAYERS.forEach((p) => {
-        const [h, m] = p.time.split(':').map(Number);
-        const target = new Date(now);
-        target.setHours(h, m, 0, 0);
-        if (target <= now) target.setDate(target.getDate() + 1);
-        const diff = target - now;
-        if (diff < minDiff) { minDiff = diff; nearest = { p, target }; }
+function buildTopBarMarquee(ads = getTopBarAds()) {
+    const track = document.getElementById('top-bar-marquee-track');
+    const bar = document.getElementById('top-bar');
+    if (!track || !bar) return;
+
+    if (!ads.length) {
+        bar.remove();
+        return;
+    }
+
+    const items = buildTopBarMarqueeItems(ads);
+    track.innerHTML = `${items}<span class="top-bar-marquee-sep" aria-hidden="true">◆</span>${items}`;
+    track.style.setProperty('--top-bar-marquee-duration', `${Math.max(24, ads.length * 10)}s`);
+}
+
+function dismissTopBar() {
+    const bar = document.getElementById('top-bar');
+    if (!bar) return;
+    localStorage.setItem(TOP_BAR_DISMISSED_KEY, '1');
+    bar.style.transition = 'opacity 0.3s ease, max-height 0.35s ease';
+    bar.style.opacity = '0';
+    bar.style.maxHeight = `${bar.offsetHeight}px`;
+    requestAnimationFrame(() => {
+        bar.style.maxHeight = '0';
+        bar.style.paddingTop = '0';
+        bar.style.paddingBottom = '0';
+        bar.style.border = 'none';
     });
-    return nearest;
+    setTimeout(() => bar.remove(), 350);
 }
 
-function formatArabicTime(timeStr) {
-    const [h, m] = timeStr.split(':').map(Number);
-    const ampm = h >= 12 ? 'م' : 'ص';
-    const h12  = h % 12 || 12;
-    return `${h12}:${String(m).padStart(2, '0')} ${ampm}`;
-}
-
-function updatePrayerWidget() {
-    const data = getPrayerCountdown();
-    if (!data) return;
-
-    const nameEl  = document.getElementById('next-prayer-name');
-    const timeEl  = document.getElementById('next-prayer-time');
-    const countEl = document.getElementById('prayer-countdown');
-
-    if (nameEl) nameEl.textContent = data.p.name;
-    if (timeEl) timeEl.textContent = formatArabicTime(data.p.time);
-
-    if (countEl) {
-        const diff  = data.target - new Date();
-        const secs  = Math.max(0, Math.floor(diff / 1000));
-        const hh    = Math.floor(secs / 3600);
-        const mm    = Math.floor((secs % 3600) / 60);
-        const ss    = secs % 60;
-        countEl.textContent = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+function initTopBar() {
+    if (localStorage.getItem(TOP_BAR_DISMISSED_KEY) === '1') {
+        document.getElementById('top-bar')?.remove();
+        return;
     }
-}
+    buildTopBarMarquee();
 
-function buildPrayerModal() {
-    const body    = document.getElementById('prayer-modal-body');
-    if (!body) return;
-    const nearest = getPrayerCountdown();
-    body.innerHTML = '';
-
-    PRAYERS.forEach(p => {
-        const isNext = nearest && p.name === nearest.p.name;
-        const row    = document.createElement('div');
-        row.className = `prayer-detail-row${isNext ? ' active' : ''}`;
-        row.innerHTML = `
-            <span class="prayer-detail-name">${sanitize(p.name)} ${isNext ? '<small style="font-size:0.7rem;color:var(--emerald-500);">(التالية)</small>' : ''}</span>
-            <span class="prayer-detail-time">${sanitize(formatArabicTime(p.time))}</span>`;
-        body.appendChild(row);
+    window.addEventListener('storage', (e) => {
+        if (e.key === TOP_BAR_ADS_KEY) buildTopBarMarquee();
     });
-}
-
-/* -----------------------------------------------------------------------
-   بناء بطاقة الإعلانات (Widget + Modal)
-   ----------------------------------------------------------------------- */
-function buildAnnouncements() {
-    // الواجهة المختصرة في البطاقة
-    const listEl = document.getElementById('ann-list');
-    if (listEl) {
-        listEl.innerHTML = ANNOUNCEMENTS.slice(0, 2).map(a => `
-            <div class="ann-item">
-                <span class="ann-tag">${sanitize(a.tag)}</span>
-                <span>${sanitize(a.short)}</span>
-            </div>`).join('');
-    }
-
-    // المودال التفصيلي
-    const bodyEl = document.getElementById('ann-modal-body');
-    if (bodyEl) {
-        bodyEl.innerHTML = ANNOUNCEMENTS.map(a => `
-            <div style="border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:16px;display:flex;flex-direction:column;gap:8px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <span class="ann-tag">${sanitize(a.tag)}</span>
-                    <span style="font-size:0.73rem;color:var(--text-muted);">${sanitize(a.date)}</span>
-                </div>
-                <p style="font-weight:700;color:var(--text-heading);font-size:0.9rem;">${sanitize(a.short)}</p>
-                <p style="font-size:0.83rem;color:var(--text-muted);line-height:1.55;text-align:justify;">${sanitize(a.detail)}</p>
-            </div>`).join('');
-    }
 }
 
 /* -----------------------------------------------------------------------
@@ -1705,6 +1950,40 @@ const INFO_CONTENT = {
                 <strong style="font-size:1.1rem;color:var(--text-heading);">المهندس المطور</strong>
                 <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.6;text-align:justify;">تم تصميم وتطوير هذه المنصة بأعلى معايير جودة الكود، والأمان الصارم، والتجاوب الكامل مع جميع الأجهزة، لتلبي احتياجات حلقات المجمع بكفاءة واحترافية.</p>
                 <button class="btn-block btn-primary-block" style="margin-top:8px;" onclick="showToast('شكراً لتواصلك! يمكنك إرسال استفسارك عبر الدعم الفني.','success')">تواصل مع المطور</button>
+            </div>`
+    },
+    supportAtm: {
+        title: 'الدعم عبر الصراف',
+        body: `
+            <div style="display:flex;flex-direction:column;gap:14px;line-height:1.7;">
+                <p style="margin:0;color:var(--text-body);">يمكنك دعم حلقات المجمع عبر التحويل السريع من أي صراف آلي:</p>
+                <div style="background:var(--bg-mint);border:1px solid rgba(0,77,90,0.12);border-radius:12px;padding:14px;">
+                    <p style="margin:0 0 8px;font-size:0.82rem;color:var(--text-muted);">رقم الحساب</p>
+                    <strong style="font-size:1.05rem;color:var(--emerald-700);letter-spacing:0.04em;direction:ltr;display:block;text-align:center;">SA00 0000 0000 0000 0000 0000</strong>
+                </div>
+                <p style="margin:0;font-size:0.84rem;color:var(--text-muted);">اختر «تحويل / حوالة» ثم أدخل رقم الحساب أعلاه. جزاك الله خيراً.</p>
+            </div>`
+    },
+    supportBank: {
+        title: 'الدعم عبر البنك',
+        body: `
+            <div style="display:flex;flex-direction:column;gap:14px;line-height:1.7;">
+                <p style="margin:0;color:var(--text-body);">للدعم عبر التحويل البنكي استخدم البيانات التالية:</p>
+                <div style="background:var(--bg-mint);border:1px solid rgba(0,77,90,0.12);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+                    <div>
+                        <p style="margin:0 0 4px;font-size:0.82rem;color:var(--text-muted);">اسم البنك</p>
+                        <strong style="color:var(--emerald-700);">البنك الأهلي السعودي</strong>
+                    </div>
+                    <div>
+                        <p style="margin:0 0 4px;font-size:0.82rem;color:var(--text-muted);">رقم الآيبان (IBAN)</p>
+                        <strong style="font-size:0.95rem;color:var(--emerald-700);letter-spacing:0.03em;direction:ltr;display:block;">SA00 0000 0000 0000 0000 0000</strong>
+                    </div>
+                    <div>
+                        <p style="margin:0 0 4px;font-size:0.82rem;color:var(--text-muted);">اسم المستفيد</p>
+                        <strong style="color:var(--emerald-700);">حلقات مجمع الزبير ابن العوام</strong>
+                    </div>
+                </div>
+                <p style="margin:0;font-size:0.84rem;color:var(--text-muted);">بعد التحويل يمكنك إرسال إشعار الدفع عبر الدعم الفني. جزاك الله خيراً.</p>
             </div>`
     },
     support: {
@@ -1894,15 +2173,56 @@ const heroSliderState = {
     autoplayTimer: null
 };
 
+let bannerAdsCache = null;
+let bannerOverlayCache = null;
+
+const OVERLAY_COLOR_BASES = {
+    white: { r: 255, g: 255, b: 255, maxAlpha: 0.62 },
+    black: { r: 0, g: 0, b: 0, maxAlpha: 0.72 },
+    salla: { r: 167, g: 235, b: 216, maxAlpha: 0.95 }
+};
+
 function getDefaultBannerOverlaySettings() {
-    return { blurAmount: 15, overlayHeight: 30, overlayColorTheme: 'white', edgeSmoothness: 20 };
+    return { blurAmount: 15, overlayHeight: 30, overlayColorTheme: 'white', edgeSmoothness: 20, colorStrength: 70 };
 }
 
-function resolveBannerOverlayColor(theme) {
-    return theme === 'emerald' ? 'rgba(11, 44, 36, 0.3)' : 'rgba(255, 255, 255, 0.3)';
+function normalizeOverlayColorTheme(theme) {
+    if (theme === 'emerald') return 'black';
+    if (theme === 'white' || theme === 'black' || theme === 'salla') return theme;
+    return 'white';
 }
 
-function getBannerOverlaySettings() {
+function clampOverlayStrength(value, fallback = 70) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.max(0, Math.min(100, Math.round(n)));
+}
+
+const OVERLAY_BLUR_MAX = 25;
+
+function clampOverlayBlur(value, fallback = 15) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.max(0, Math.min(OVERLAY_BLUR_MAX, Math.round(n)));
+}
+
+function resolveBannerOverlayColor(theme, colorStrength = 70) {
+    const normalized = normalizeOverlayColorTheme(theme);
+    const base = OVERLAY_COLOR_BASES[normalized] || OVERLAY_COLOR_BASES.white;
+    const factor = clampOverlayStrength(colorStrength, 70) / 100;
+    const alpha = (base.maxAlpha * factor).toFixed(3);
+    return `rgba(${base.r}, ${base.g}, ${base.b}, ${alpha})`;
+}
+
+function mergeBannerOverlaySettings(remote) {
+    const defaults = getDefaultBannerOverlaySettings();
+    const local = getBannerOverlaySettingsLocal();
+    const hasLocal = Boolean(localStorage.getItem(BANNER_OVERLAY_KEY));
+    if (!remote) return local;
+    return hasLocal ? { ...defaults, ...remote, ...local } : { ...defaults, ...remote };
+}
+
+function getBannerOverlaySettingsLocal() {
     try {
         const raw = localStorage.getItem(BANNER_OVERLAY_KEY);
         if (!raw) return getDefaultBannerOverlaySettings();
@@ -1912,13 +2232,29 @@ function getBannerOverlaySettings() {
     }
 }
 
+function getBannerOverlaySettings() {
+    if (bannerOverlayCache) {
+        return { ...getDefaultBannerOverlaySettings(), ...bannerOverlayCache };
+    }
+    return getBannerOverlaySettingsLocal();
+}
+
+function saveBannerOverlaySettingsLocal(settings) {
+    localStorage.setItem(BANNER_OVERLAY_KEY, JSON.stringify(settings));
+    bannerOverlayCache = settings;
+}
+
 function applyBannerOverlaySettings(settings = getBannerOverlaySettings()) {
     const wrap = document.getElementById('hero-banner-wrap');
     if (!wrap) return;
-    wrap.style.setProperty('--blur-amount', `${settings.blurAmount}px`);
+    const theme = normalizeOverlayColorTheme(settings.overlayColorTheme);
+    const strength = clampOverlayStrength(settings.colorStrength, 70);
+    wrap.style.setProperty('--blur-amount', `${clampOverlayBlur(settings.blurAmount)}px`);
     wrap.style.setProperty('--overlay-height', `${settings.overlayHeight}%`);
-    wrap.style.setProperty('--overlay-color', resolveBannerOverlayColor(settings.overlayColorTheme));
+    wrap.style.setProperty('--overlay-color', resolveBannerOverlayColor(theme, strength));
+    wrap.style.setProperty('--overlay-color-strength', String(strength));
     wrap.style.setProperty('--edge-smoothness', `${settings.edgeSmoothness}%`);
+    wrap.dataset.overlayTheme = theme;
 }
 
 function getDefaultBannerAds() {
@@ -1935,7 +2271,7 @@ function getDefaultBannerAds() {
     }];
 }
 
-function getBannerAds() {
+function getBannerAdsLocal() {
     try {
         const raw = localStorage.getItem(BANNER_ADS_KEY);
         if (!raw) return null;
@@ -1946,20 +2282,82 @@ function getBannerAds() {
     }
 }
 
-function saveBannerAds(list) {
+function saveBannerAdsLocal(list) {
     localStorage.setItem(BANNER_ADS_KEY, JSON.stringify(list));
+    bannerAdsCache = list;
+}
+
+function withNetworkTimeout(promise, ms = 4500) {
+    return Promise.race([
+        promise,
+        new Promise((resolve) => setTimeout(() => resolve(undefined), ms))
+    ]);
+}
+
+async function loadBannerAdsFromStore() {
+    if (window.BannerStore?.isEnabled) {
+        const fromDb = await window.BannerStore.fetchBannerAds();
+        if (fromDb !== null) {
+            if (fromDb.length) {
+                saveBannerAdsLocal(fromDb);
+                return fromDb;
+            }
+            const local = getBannerAdsLocal();
+            const toSave = local?.length ? local : getDefaultBannerAds();
+            saveBannerAdsLocal(toSave);
+            void window.BannerStore.replaceBannerAds(toSave);
+            return toSave;
+        }
+    }
+
+    const local = getBannerAdsLocal();
+    if (local?.length) {
+        bannerAdsCache = local;
+        return local;
+    }
+
+    const defaults = getDefaultBannerAds();
+    saveBannerAdsLocal(defaults);
+    return defaults;
+}
+
+async function loadBannerOverlayFromStore() {
+    const local = getBannerOverlaySettingsLocal();
+    const hasLocal = Boolean(localStorage.getItem(BANNER_OVERLAY_KEY));
+
+    if (window.BannerStore?.isEnabled) {
+        const fromDb = await window.BannerStore.fetchBannerOverlaySettings();
+        if (fromDb) {
+            const merged = mergeBannerOverlaySettings(fromDb);
+            if (!hasLocal) saveBannerOverlaySettingsLocal(merged);
+            return merged;
+        }
+    }
+
+    return local;
 }
 
 function ensureBannerAdsStore() {
-    const existing = getBannerAds();
-    if (existing?.length) return existing;
+    if (bannerAdsCache?.length) return bannerAdsCache;
+    const local = getBannerAdsLocal();
+    if (local?.length) {
+        bannerAdsCache = local;
+        return local;
+    }
     const defaults = getDefaultBannerAds();
-    saveBannerAds(defaults);
+    bannerAdsCache = defaults;
     return defaults;
 }
 
 function getVisibleBannerAds() {
-    return ensureBannerAdsStore().filter((ad) => ad.archived !== true && ad.active !== false);
+    return ensureBannerAdsStore()
+        .filter((ad) => ad.archived !== true && ad.active !== false)
+        .sort((a, b) => {
+            const ao = Number.isFinite(a.sortOrder) ? a.sortOrder : Number.MAX_SAFE_INTEGER;
+            const bo = Number.isFinite(b.sortOrder) ? b.sortOrder : Number.MAX_SAFE_INTEGER;
+            if (ao !== bo) return ao - bo;
+            return String(a.createdAt || '').localeCompare(String(b.createdAt || ''));
+        });
 }
 
 function escapeBannerHtml(str) {
@@ -1968,6 +2366,64 @@ function escapeBannerHtml(str) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+}
+
+let heroBannerFirstImageUrl = '';
+
+function setHeroBannerState(state) {
+    const wrap = document.getElementById('hero-banner-wrap');
+    if (!wrap) return;
+    wrap.classList.remove('is-loading', 'is-ready', 'is-empty');
+    if (state) wrap.classList.add(state);
+    wrap.setAttribute('aria-busy', state === 'is-loading' ? 'true' : 'false');
+    if (state === 'is-empty') {
+        wrap.setAttribute('hidden', '');
+    } else {
+        wrap.removeAttribute('hidden');
+    }
+}
+
+function waitForHeroFirstImage(timeoutMs = 10000) {
+    return new Promise((resolve) => {
+        const img = document.querySelector('#hero-slider-track .hero-slide-media');
+        if (!img) {
+            resolve();
+            return;
+        }
+        let done = false;
+        const finish = () => {
+            if (done) return;
+            done = true;
+            resolve();
+        };
+        if (img.complete && img.naturalWidth > 0) {
+            finish();
+            return;
+        }
+        img.addEventListener('load', finish, { once: true });
+        img.addEventListener('error', finish, { once: true });
+        setTimeout(finish, timeoutMs);
+    });
+}
+
+async function revealHeroBannerWhenReady() {
+    const ads = getVisibleBannerAds();
+    if (!ads.length) {
+        setHeroBannerState('is-empty');
+        heroBannerFirstImageUrl = '';
+        return;
+    }
+
+    const firstUrl = String(ads[0]?.image || '');
+    const wrap = document.getElementById('hero-banner-wrap');
+    if (wrap?.classList.contains('is-ready') && heroBannerFirstImageUrl === firstUrl) {
+        return;
+    }
+
+    setHeroBannerState('is-loading');
+    await waitForHeroFirstImage();
+    heroBannerFirstImageUrl = firstUrl;
+    setHeroBannerState('is-ready');
 }
 
 function navigateBannerAd(ad) {
@@ -1991,16 +2447,21 @@ function renderHeroSlider() {
     stopHeroAutoplay();
 
     if (!heroSliderState.ads.length) {
-        wrap.hidden = true;
+        setHeroBannerState('is-empty');
         track.innerHTML = '';
         dots.innerHTML = '';
         return;
     }
 
-    wrap.hidden = false;
     if (heroSliderState.index >= heroSliderState.ads.length) {
         heroSliderState.index = 0;
     }
+
+    heroSliderState.ads.slice(0, 2).forEach((ad) => {
+        if (!ad?.image) return;
+        const img = new Image();
+        img.src = ad.image;
+    });
 
     track.innerHTML = heroSliderState.ads.map((ad, i) => {
         const caption = ad.caption
@@ -2031,6 +2492,7 @@ function renderHeroSlider() {
     document.getElementById('hero-dots').hidden = !showNav;
 
     startHeroAutoplay();
+    void revealHeroBannerWhenReady();
 }
 
 function updateHeroSlidePosition(animate = true) {
@@ -2085,8 +2547,11 @@ function restartHeroAutoplay() {
     startHeroAutoplay();
 }
 
-function initHeroSlider() {
-    renderHeroSlider();
+let heroSliderEventsBound = false;
+
+function bindHeroSliderEvents() {
+    if (heroSliderEventsBound) return;
+    heroSliderEventsBound = true;
 
     const slider = document.getElementById('hero-slider');
     const track = document.getElementById('hero-slider-track');
@@ -2116,6 +2581,340 @@ function initHeroSlider() {
         if (e.key === BANNER_ADS_KEY) renderHeroSlider();
         if (e.key === BANNER_OVERLAY_KEY) applyBannerOverlaySettings();
     });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState !== 'visible') return;
+        void refreshBannerFromRemote();
+    });
+}
+
+async function refreshBannerFromRemote() {
+    const before = JSON.stringify(getVisibleBannerAds());
+    const overlayBefore = JSON.stringify(getBannerOverlaySettings());
+
+    const [ads, overlay] = await Promise.all([
+        withNetworkTimeout(loadBannerAdsFromStore()),
+        withNetworkTimeout(loadBannerOverlayFromStore())
+    ]);
+
+    if (ads === undefined && overlay === undefined) return;
+
+    const after = JSON.stringify(getVisibleBannerAds());
+    const overlayAfter = JSON.stringify(getBannerOverlaySettings());
+
+    if (before !== after || overlayBefore !== overlayAfter) {
+        applyBannerOverlaySettings();
+        renderHeroSlider();
+    }
+}
+
+/* -----------------------------------------------------------------------
+   إنجازات التحفيظ — منصة التتويج
+   ----------------------------------------------------------------------- */
+const TAHFEEZ_SHOWCASE_KEY = 'qmza_tahfeez_showcase';
+
+const DEFAULT_TAHFEEZ_SHOWCASE = {
+    lastYearMemorization: {
+        name: 'عبدالله محمد العتيبي',
+        halaqa: 'حلقة الفجر',
+        detail: 'أكمل حفظ ١٢ جزءاً خلال العام',
+        image: 'assets/tahfeez/tahfeez-champion-memorization.png'
+    },
+    lastYearAttendance: {
+        name: 'سعود فيصل الدوسري',
+        halaqa: 'حلقة العصر',
+        detail: '٩٨٪ حضور واجتهاد في التسميع',
+        image: 'assets/tahfeez/tahfeez-champion-attendance.png'
+    },
+    monthlyPodium: [
+        {
+            rank: 2,
+            name: 'يوسف أحمد الغامدي',
+            halaqa: 'حلقة الضحى',
+            detail: 'حفظ ٨ أجزاء جديدة',
+            image: 'assets/tahfeez/tahfeez-podium-second.png'
+        },
+        {
+            rank: 1,
+            name: 'محمد سالم القحطاني',
+            halaqa: 'حلقة الفجر',
+            detail: 'حفظ ١٠ أجزاء — الأعلى هذا الشهر',
+            image: 'assets/tahfeez/tahfeez-podium-first.png'
+        },
+        {
+            rank: 3,
+            name: 'فهد عبدالرحمن الشهراني',
+            halaqa: 'حلقة المغرب',
+            detail: 'حفظ ٦ أجزاء بتميز',
+            image: 'assets/tahfeez/tahfeez-podium-third.png'
+        }
+    ],
+    idealStudent: {
+        name: 'عمر خالد الحربي',
+        halaqa: 'حلقة الفجر',
+        detail: 'حلقة الفجر — مثال في الأخلاق والحضور',
+        quote: 'يجمع بين حسن التسميع والالتزام — قدوة لزملائه في الحلقة.',
+        image: 'assets/tahfeez/tahfeez-ideal-student.png'
+    }
+};
+
+function getTahfeezShowcaseConfig() {
+    try {
+        const raw = JSON.parse(localStorage.getItem(TAHFEEZ_SHOWCASE_KEY) || 'null');
+        if (raw && typeof raw === 'object') {
+            return {
+                ...DEFAULT_TAHFEEZ_SHOWCASE,
+                ...raw,
+                lastYearMemorization: { ...DEFAULT_TAHFEEZ_SHOWCASE.lastYearMemorization, ...raw.lastYearMemorization },
+                lastYearAttendance: { ...DEFAULT_TAHFEEZ_SHOWCASE.lastYearAttendance, ...raw.lastYearAttendance },
+                idealStudent: { ...DEFAULT_TAHFEEZ_SHOWCASE.idealStudent, ...raw.idealStudent },
+                monthlyPodium: Array.isArray(raw.monthlyPodium) && raw.monthlyPodium.length === 3
+                    ? raw.monthlyPodium
+                    : DEFAULT_TAHFEEZ_SHOWCASE.monthlyPodium
+            };
+        }
+    } catch { /* ignore */ }
+    return {
+        ...DEFAULT_TAHFEEZ_SHOWCASE,
+        monthlyPodium: DEFAULT_TAHFEEZ_SHOWCASE.monthlyPodium.map((item) => ({ ...item }))
+    };
+}
+
+function escapeTahfeezHtml(str) {
+    return escapeBannerHtml(str);
+}
+
+function renderTahfeezChampionCard(prefix, data) {
+    const photo = document.getElementById(`${prefix}-photo`);
+    const name = document.getElementById(`${prefix}-name`);
+    const meta = document.getElementById(`${prefix}-meta`);
+    if (!data) return;
+
+    if (photo) {
+        photo.src = data.image || '';
+        photo.alt = data.name ? `صورة ${data.name}` : 'صورة الطالب';
+    }
+    if (name) name.textContent = data.name || '—';
+    if (meta) {
+        const parts = [data.halaqa, data.detail].filter(Boolean);
+        meta.textContent = parts.join(' · ') || '—';
+    }
+}
+
+function renderTahfeezPodium(podium = []) {
+    const wrap = document.getElementById('tahfeez-podium');
+    if (!wrap) return;
+
+    const ordered = [2, 1, 3].map((rank) => (
+        podium.find((item) => Number(item.rank) === rank)
+        || DEFAULT_TAHFEEZ_SHOWCASE.monthlyPodium.find((item) => item.rank === rank)
+    )).filter(Boolean);
+
+    const rankLabels = { 1: 'الأول', 2: 'الثاني', 3: 'الثالث' };
+
+    wrap.innerHTML = ordered.map((item) => {
+        const rank = Number(item.rank) || 1;
+        return `
+            <article class="tahfeez-podium-slot tahfeez-podium-slot--${rank}" role="listitem">
+                <div class="tahfeez-podium-photo-wrap">
+                    <img class="tahfeez-podium-photo" src="${escapeTahfeezHtml(item.image)}" alt="${escapeTahfeezHtml(item.name || 'طالب')}">
+                    <span class="tahfeez-podium-rank">${rank}</span>
+                </div>
+                <p class="tahfeez-podium-name">${escapeTahfeezHtml(item.name)}</p>
+                <p class="tahfeez-podium-meta">${escapeTahfeezHtml([item.halaqa, item.detail].filter(Boolean).join(' · '))}</p>
+                <div class="tahfeez-podium-stand">${rankLabels[rank] || rank}</div>
+            </article>
+        `;
+    }).join('');
+}
+
+function renderTahfeezIdealStudent(data) {
+    if (!data) return;
+    const photo = document.getElementById('tahfeez-ideal-photo');
+    const name = document.getElementById('tahfeez-ideal-name');
+    const meta = document.getElementById('tahfeez-ideal-meta');
+    const quote = document.getElementById('tahfeez-ideal-quote');
+
+    if (photo) {
+        photo.src = data.image || '';
+        photo.alt = data.name ? `الطالب المثالي — ${data.name}` : 'الطالب المثالي';
+    }
+    if (name) name.textContent = data.name || '—';
+    if (meta) meta.textContent = data.detail || data.halaqa || '—';
+    if (quote) quote.textContent = data.quote ? `«${data.quote}»` : '';
+}
+
+function renderTahfeezShowcase() {
+    const cfg = getTahfeezShowcaseConfig();
+    renderTahfeezChampionCard('tahfeez-mem', cfg.lastYearMemorization);
+    renderTahfeezChampionCard('tahfeez-att', cfg.lastYearAttendance);
+    renderTahfeezPodium(cfg.monthlyPodium);
+    renderTahfeezIdealStudent(cfg.idealStudent);
+}
+
+function initTahfeezShowcase() {
+    renderTahfeezShowcase();
+    window.addEventListener('storage', (e) => {
+        if (e.key === TAHFEEZ_SHOWCASE_KEY) renderTahfeezShowcase();
+    });
+}
+
+/* -----------------------------------------------------------------------
+   إحصائيات المجمع العامة — عداد فخم
+   ----------------------------------------------------------------------- */
+const PUBLIC_STATS_KEY = 'qmza_public_stats';
+const HALAQA_STAT_KEYS = ['fajr', 'duha', 'asr', 'maghrib'];
+
+const DEFAULT_PUBLIC_STATS = {
+    hafizThisYear: 12,
+    hafizTenYears: 94,
+    youngestHafizAge: 9,
+    manualStudents: 168,
+    manualHalaqat: 4
+};
+
+function getPublicStatsConfig() {
+    try {
+        const raw = JSON.parse(localStorage.getItem(PUBLIC_STATS_KEY) || 'null');
+        if (raw && typeof raw === 'object') {
+            return { ...DEFAULT_PUBLIC_STATS, ...raw };
+        }
+    } catch { /* ignore */ }
+    return { ...DEFAULT_PUBLIC_STATS };
+}
+
+function normalizeHalaqaStatKey(halaqa) {
+    const raw = String(halaqa || '').trim();
+    if (!raw) return '';
+    if (HALAQA_STAT_KEYS.includes(raw)) return raw;
+    const labels = {
+        fajr: 'حلقة الفجر',
+        duha: 'حلقة الضحى',
+        asr: 'حلقة العصر',
+        maghrib: 'حلقة المغرب'
+    };
+    const byLabel = HALAQA_STAT_KEYS.find((key) => labels[key] === raw);
+    if (byLabel) return byLabel;
+    const short = raw.replace(/^حلقة\s+/u, '');
+    return HALAQA_STAT_KEYS.find((key) => labels[key].includes(short)) || '';
+}
+
+function isFullMemorizer(student) {
+    const mem = String(student?.memorization || student?.level || '').trim();
+    return mem === 'full' || mem === 'حافظ للقرآن كاملاً';
+}
+
+function computePublicStats() {
+    const cfg = getPublicStatsConfig();
+    const students = getApprovedStudents();
+    const studentCount = students.length || cfg.manualStudents;
+
+    const activeHalaqat = new Set(
+        students.map((st) => normalizeHalaqaStatKey(st.halaqa)).filter(Boolean)
+    );
+    const halaqatCount = activeHalaqat.size || cfg.manualHalaqat;
+
+    const hafizStudents = students.filter(isFullMemorizer);
+    const ages = hafizStudents
+        .map((st) => Number(st.age))
+        .filter((age) => Number.isFinite(age) && age > 0);
+    const youngestAge = ages.length ? Math.min(...ages) : cfg.youngestHafizAge;
+
+    return {
+        hafizThisYear: Number(cfg.hafizThisYear) || DEFAULT_PUBLIC_STATS.hafizThisYear,
+        hafizTenYears: Number(cfg.hafizTenYears) || DEFAULT_PUBLIC_STATS.hafizTenYears,
+        youngestHafizAge: youngestAge,
+        students: studentCount,
+        halaqat: halaqatCount
+    };
+}
+
+function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+}
+
+function animateStatCounter(el, target, duration = 1400) {
+    if (!el) return;
+    const safeTarget = Math.max(0, Math.round(Number(target) || 0));
+    el.dataset.statValue = String(safeTarget);
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        el.textContent = String(safeTarget);
+        return;
+    }
+
+    const start = performance.now();
+    const from = 0;
+
+    const tick = (now) => {
+        const progress = Math.min(1, (now - start) / duration);
+        const value = Math.round(from + (safeTarget - from) * easeOutCubic(progress));
+        el.textContent = String(value);
+        if (progress < 1) requestAnimationFrame(tick);
+    };
+
+    el.textContent = '0';
+    requestAnimationFrame(tick);
+}
+
+function renderPublicStats() {
+    const stats = computePublicStats();
+    const section = document.getElementById('majma-stats');
+    if (!section) return;
+
+    animateStatCounter(document.getElementById('stat-hafiz-year'), stats.hafizThisYear);
+    animateStatCounter(document.getElementById('stat-hafiz-decade'), stats.hafizTenYears);
+    animateStatCounter(document.getElementById('stat-youngest-age'), stats.youngestHafizAge);
+    animateStatCounter(document.getElementById('stat-students'), stats.students);
+    animateStatCounter(document.getElementById('stat-halaqat'), stats.halaqat);
+
+    const unitEl = document.getElementById('stat-youngest-unit');
+    if (unitEl) {
+        unitEl.textContent = stats.youngestHafizAge === 1 ? 'سنة' : 'سنوات';
+    }
+
+    section.classList.add('is-visible');
+}
+
+let publicStatsObserverStarted = false;
+
+function initPublicStats() {
+    const section = document.getElementById('majma-stats');
+    if (!section || publicStatsObserverStarted) return;
+    publicStatsObserverStarted = true;
+
+    const run = () => renderPublicStats();
+
+    if (!('IntersectionObserver' in window)) {
+        run();
+        return;
+    }
+
+    let played = false;
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting || played) return;
+            played = true;
+            run();
+            observer.disconnect();
+        });
+    }, { threshold: 0.25 });
+
+    observer.observe(section);
+
+    window.addEventListener('storage', (e) => {
+        if (e.key === PUBLIC_STATS_KEY || APPROVED_STUDENTS_KEYS.includes(e.key)) {
+            renderPublicStats();
+        }
+    });
+}
+
+function initHeroSlider() {
+    setHeroBannerState('is-loading');
+    applyBannerOverlaySettings();
+    renderHeroSlider();
+    bindHeroSliderEvents();
+    void refreshBannerFromRemote();
 }
 
 /* -----------------------------------------------------------------------
@@ -2147,14 +2946,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initPhoneIntlToggle();
     initCountryCodeInput();
     initHeroSlider();
-    applyBannerOverlaySettings();
-
-    // بناء الإعلانات
-    buildAnnouncements();
-
-    // عداد مواقيت الصلاة
-    updatePrayerWidget();
-    setInterval(updatePrayerWidget, 1000);
+    initTahfeezShowcase();
+    initPublicStats();
+    initTopBar();
 
     // تهيئة القائمة الجانبية
     initSidebarLayout();
@@ -2169,13 +2963,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* --- ربط الأحداث --- */
 
-    // شريط الإعلان العلوي
-    document.getElementById('top-bar-close-btn')?.addEventListener('click', () => {
-        const bar = document.getElementById('top-bar');
-        if (bar) { bar.style.transition = 'opacity 0.3s'; bar.style.opacity = '0'; setTimeout(() => bar.remove(), 300); }
-    });
-
-    document.getElementById('top-bar-cta-btn')?.addEventListener('click', scrollToJoinRegister);
+    document.getElementById('top-bar-close-btn')?.addEventListener('click', dismissTopBar);
 
     // أزرار الهيدر
     document.getElementById('header-login-btn')?.addEventListener('click', () => {
@@ -2249,8 +3037,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // التبديل بين واجهة الدخول والتسجيل
-    document.getElementById('go-join-btn')?.addEventListener('click', () => showView('register-view'));
-    document.getElementById('go-login-tab')?.addEventListener('click', () => showView('login-view'));
+    document.getElementById('login-alt-join-student')?.addEventListener('click', () => showView('register-view'));
+    document.getElementById('register-back-login')?.addEventListener('click', () => showView('login-view'));
 
     // نموذج تسجيل الدخول — مصادقة صارمة ضد الطلاب المعتمدين (dash_students)
     document.getElementById('login-form')?.addEventListener('submit', async (e) => {
@@ -2271,24 +3059,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('login-id')?.addEventListener('input', clearLoginFailureState);
     document.getElementById('login-pass')?.addEventListener('input', clearLoginFailureState);
 
-    // نموذج طلب الانضمام
+    // نموذج طلب الانضمام (متعدد الخطوات)
+    initRegisterWizard();
+
     document.getElementById('register-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        if (!validateRegisterForm()) {
-            const intl = isPhoneIntlMode();
-            const phone = intl
-                ? isInternationalPhone(
-                    sanitize(document.getElementById('reg-phone')?.value.trim() ?? ''),
-                    getCountryCodeValue()
-                )
-                : isYemeniPhone(sanitize(document.getElementById('reg-phone')?.value.trim() ?? ''));
-            const passOk = isValidPassword(document.getElementById('reg-pass')?.value ?? '');
-            const msg = !phone
-                ? (intl ? 'تحقق من رمز الدولة ورقم الهاتف الدولي.' : 'أدخل رقم يمني صحيح: 9 أرقام ويبدأ بـ 7.')
-                : !passOk
-                    ? 'كلمة السر: 8 خانات، أحرف صغيرة إنجليزية وأرقام فقط.'
-                    : 'تحقق من البيانات المدخلة.';
-            showToast(msg, 'error');
+        if (regWizardStep !== REG_WIZARD_TOTAL) {
+            goRegWizardNext();
+            return;
+        }
+        if (!validateRegWizardStep(5) || !validateRegisterForm()) {
             return;
         }
 
@@ -2297,6 +3077,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const result = await saveNewStudentRequest({
                 name: sanitize(document.getElementById('reg-name')?.value ?? ''),
+                age: parseInt(document.getElementById('reg-age')?.value ?? '', 10),
+                memorization: document.getElementById('reg-memorization')?.value ?? '',
                 phone: sanitize(document.getElementById('reg-phone')?.value.trim() ?? ''),
                 countryCode: isPhoneIntlMode() ? getCountryCodeValue() : '+967',
                 password: document.getElementById('reg-pass')?.value ?? ''
@@ -2309,35 +3091,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             setMascotSpeech('joinSuccess');
             updateMascotPose();
-            document.getElementById('register-form')?.reset();
-            resetPhoneIntlMode();
-            resetPasswordField('reg-pass');
-            showToast('تم إرسال طلبك بنجاح!', 'success');
+            showRegisterSuccessScreen();
         } finally {
             submitBtn?.removeAttribute('disabled');
         }
     });
 
-    // بطاقات الويدجت
-    document.getElementById('prayer-widget')?.addEventListener('click', () => {
-        buildPrayerModal();
-        openModal('prayer-modal-overlay');
-    });
-
-    document.getElementById('ann-widget')?.addEventListener('click', () => openModal('ann-modal-overlay'));
-
-    // إغلاق نوافذ الصلاة والإعلانات
-    document.getElementById('prayer-modal-close')?.addEventListener('click', () => closeModal('prayer-modal-overlay'));
-    document.getElementById('ann-modal-close')?.addEventListener('click', () => closeModal('ann-modal-overlay'));
     document.getElementById('info-modal-close')?.addEventListener('click', () => closeModal('info-modal-overlay'));
-
-    document.getElementById('prayer-modal-overlay')?.addEventListener('click', (e) => {
-        if (e.target.id === 'prayer-modal-overlay') closeModal('prayer-modal-overlay');
-    });
-
-    document.getElementById('ann-modal-overlay')?.addEventListener('click', (e) => {
-        if (e.target.id === 'ann-modal-overlay') closeModal('ann-modal-overlay');
-    });
 
     document.getElementById('info-modal-overlay')?.addEventListener('click', (e) => {
         if (e.target.id === 'info-modal-overlay') closeModal('info-modal-overlay');
@@ -2373,6 +3133,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // روابط الفوتر
     document.getElementById('footer-dev')?.addEventListener('click',     (e) => { e.preventDefault(); openInfoModal('developer'); });
     document.getElementById('footer-support')?.addEventListener('click', (e) => { e.preventDefault(); openInfoModal('support'); });
+    document.getElementById('footer-support-atm')?.addEventListener('click',  (e) => { e.preventDefault(); openInfoModal('supportAtm'); });
+    document.getElementById('footer-support-bank')?.addEventListener('click', (e) => { e.preventDefault(); openInfoModal('supportBank'); });
 
     // شريط التنقل السفلي (Bottom Nav)
     const bnavItems = document.querySelectorAll('.bottom-nav-item');
@@ -2388,9 +3150,6 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (target === 'halaqat') {
                 showView('register-view');
                 document.getElementById('auth-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } else if (target === 'prayer') {
-                buildPrayerModal();
-                openModal('prayer-modal-overlay');
             } else if (target === 'developer') {
                 openInfoModal('developer');
             }
